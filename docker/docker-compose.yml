@@ -1,3 +1,6 @@
+networks:
+  net:
+    driver: bridge
 services:
   postgres:
     build:
@@ -12,5 +15,18 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
       - ../db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+  chromadb:
+    image: ghcr.io/chroma-core/chroma:latest
+    environment:
+      - IS_PERSISTENT=TRUE
+    volumes:
+      # Default configuration for persist_directory in chromadb/config.py
+      # Currently it's located in "/chroma/chroma/"
+      - chroma-data:/chroma/chroma/
+    ports:
+      - 8000:8000
+    networks:
+      - net
 volumes:
   postgres_data:
+  chroma-data:
