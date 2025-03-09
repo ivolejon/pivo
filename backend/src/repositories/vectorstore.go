@@ -5,31 +5,34 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/tmc/langchaingo/embeddings"
+	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/ollama"
 )
 
-type Document struct {
+type ClientDocument struct {
 	ID      uuid.UUID
-	content string
+	Content string
 }
 
 type Provider interface {
-	AddDocuments([]Document) error
+	AddDocuments([]ClientDocument) error
 	SimilaritySearch(string) string
 	RemoveCollection() bool
 }
 
 type VectorStore struct {
-	Provider               Provider
-	GetDocumentsByClientID func() []Document
+	Provider Provider
+	ClientId uuid.UUID
+	embedder *embeddings.EmbedderImpl
+	llm      llms.Model
 }
 
-func NewDocument(content string) Document {
-	return Document{
-		ID:      uuid.New(),
-		content: content,
-	}
-}
+// func NewDocument(content string) Document {
+// 	return Document{
+// 		ID:      uuid.New(),
+// 		content: content,
+// 	}
+// }
 
 type anyLLM = interface{}
 
@@ -45,16 +48,19 @@ func NewVectorStore(llm anyLLM, collectionId uuid.UUID) (*VectorStore, error) {
 		return nil, err
 	}
 
-	store, err := NewChromaDB(embedder, collectionId)
+	store, err := NewChromaDB(ollama, embedder, collectionId)
 	if err != nil {
 		return nil, err
 	}
 	return &VectorStore{
 		Provider: store,
+		ClientId: collectionId,
+		embedder: embedder,
+		llm:      ollama,
 	}, nil
 }
 
-func (v *VectorStore) AddDocuments(documents []Document) error {
+func (v *VectorStore) AddDocuments(documents []ClientDocument) error {
 	return v.Provider.AddDocuments(documents)
 }
 
