@@ -11,6 +11,7 @@ import (
 	"github.com/tmc/langchaingo/chains"
 	"github.com/tmc/langchaingo/embeddings"
 	"github.com/tmc/langchaingo/llms/ollama"
+	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/vectorstores"
 )
 
@@ -74,14 +75,15 @@ func TestChromaDBAddDocuments(t *testing.T) {
 		t.Errorf("Error creating ChromaDB: %v", err)
 		return
 	}
-	documents := []repositories.ClientDocument{
-		{ID: uuid.New(), Content: "The color of the house is blue."},
-		{ID: uuid.New(), Content: "The color of the car is red."},
-		{ID: uuid.New(), Content: "The color of the desk is orange."},
+	documents := []schema.Document{
+		{PageContent: "The color of the house is blue."},
+		{PageContent: "The color of the car is red."},
+		{PageContent: "The color of the desk is orange."},
 	}
 	errAdd := chroma.AddDocuments(documents)
 	require.NoError(t, errAdd)
 
+	// TODO: Move this to a separate test
 	result, err := chains.Run(
 		context.TODO(),
 		chains.NewRetrievalQAFromLLM(
@@ -92,6 +94,42 @@ func TestChromaDBAddDocuments(t *testing.T) {
 	)
 	require.NoError(t, err)
 	require.True(t, strings.Contains(result, "Orange."), "expected orange in result")
+}
+
+func TestChromaDBSimilaritySearch(t *testing.T) {
+	llm, err := getOllama()
+	if err != nil {
+		t.Errorf("Error creating LLM: %v", err)
+		return
+	}
+
+	embedder, err := getOllamaEmbedder()
+	if err != nil {
+		t.Errorf("Error creating embedder: %v", err)
+		return
+	}
+	chroma, err := repositories.NewChromaDB(llm, embedder, testCollectionId)
+	if err != nil {
+		t.Errorf("Error creating ChromaDB: %v", err)
+		return
+	}
+	err = chroma.AddDocuments([]schema.Document{
+		{PageContent: "tokyo", Metadata: map[string]any{
+			"country": "japan", "id": uuid.New().String(),
+			"filename": "tokyo.txt",
+		}},
+		{PageContent: "potato"},
+	})
+
+	require.NoError(t, err)
+
+	docs, err := chroma.SimilaritySearch("tokyo", 1)
+	require.NoError(t, err)
+	require.Len(t, docs, 1)
+	require.Equal(t, "tokyo", docs[0].PageContent)
+	country := docs[0].Metadata["country"]
+	require.NoError(t, err)
+	require.Equal(t, "japan", country)
 }
 
 func TestRemoveCollection(t *testing.T) {

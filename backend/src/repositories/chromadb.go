@@ -18,7 +18,7 @@ type ChromaDB struct {
 	ctx   context.Context
 }
 
-type meta = map[string]any
+// type meta = map[string]any
 
 var errAdd = errors.New("error adding document")
 
@@ -38,24 +38,21 @@ func NewChromaDB(llm llms.Model, embedder *embeddings.EmbedderImpl, collectionId
 	}, nil
 }
 
-func (p *ChromaDB) AddDocuments(documents []ClientDocument) error {
-	_documents := []schema.Document{}
-	for _, doc := range documents {
-		_documents = append(_documents, schema.Document{
-			PageContent: doc.Content,
-			Metadata:    meta{},
-			Score:       1,
-		})
-	}
-	_, err := p.Store.AddDocuments(context.Background(), _documents)
+func (p *ChromaDB) AddDocuments(documents []schema.Document) error {
+	_, err := p.Store.AddDocuments(context.Background(), documents)
 	if err != nil {
 		return errAdd
 	}
 	return nil
 }
 
-func (p *ChromaDB) SimilaritySearch(search string) string {
-	return "SimilaritySearch"
+func (p *ChromaDB) SimilaritySearch(search string, numOfResults int) ([]schema.Document, error) {
+	result, err := p.Store.SimilaritySearch(context.Background(), search, numOfResults)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (p *ChromaDB) RemoveCollection() bool {
