@@ -16,13 +16,13 @@ services:
       - postgres_data:/var/lib/postgresql/data/
       - ../db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
   chromadb:
-    image: ghcr.io/chroma-core/chroma:latest
+    image: chromadb/chroma:0.6.2
+    volumes:
+      - ./chromadb:/chroma/chroma
     environment:
       - IS_PERSISTENT=TRUE
-    volumes:
-      # Default configuration for persist_directory in chromadb/config.py
-      # Currently it's located in "/chroma/chroma/"
-      - chroma-data:/chroma/chroma/
+      - PERSIST_DIRECTORY=/chroma/chroma # this is the default path, change it as needed
+      - ANONYMIZED_TELEMETRY=${ANONYMIZED_TELEMETRY:-TRUE}
     ports:
       - 8000:8000
     networks:

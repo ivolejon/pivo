@@ -1,7 +1,11 @@
 package repositories
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
+	"github.com/tmc/langchaingo/embeddings"
+	"github.com/tmc/langchaingo/llms/ollama"
 )
 
 type Document struct {
@@ -11,8 +15,8 @@ type Document struct {
 
 type Provider interface {
 	AddDocuments([]Document) error
-	SimilaritySearch() string
-	RemoveDocument(id uuid.UUID) bool
+	SimilaritySearch(string) string
+	RemoveCollection() bool
 }
 
 type VectorStore struct {
@@ -27,9 +31,21 @@ func NewDocument(content string) Document {
 	}
 }
 
-func NewVectorStore() (*VectorStore, error) {
+type anyLLM = interface{}
+
+func NewVectorStore(llm anyLLM, collectionId uuid.UUID) (*VectorStore, error) {
 	// Here we can use muliple providers like ChromaDB, PgVector, etc. For now, we are using ChromaDB
-	store, err := NewChromaDB()
+	llm, ok := llm.(*ollama.LLM)
+	if !ok {
+		return nil, errors.New("llm is not of type *ollama.LLM")
+	}
+	ollama := llm.(*ollama.LLM)
+	embedder, err := embeddings.NewEmbedder(ollama)
+	if err != nil {
+		return nil, err
+	}
+
+	store, err := NewChromaDB(embedder, collectionId)
 	if err != nil {
 		return nil, err
 	}
@@ -38,15 +54,14 @@ func NewVectorStore() (*VectorStore, error) {
 	}, nil
 }
 
-func (v *VectorStore) AddDocument() error {
-	var documents []Document
+func (v *VectorStore) AddDocuments(documents []Document) error {
 	return v.Provider.AddDocuments(documents)
 }
 
-func (v *VectorStore) SimilaritySearch() string {
-	return v.Provider.SimilaritySearch()
+func (v *VectorStore) SimilaritySearch(search string) string {
+	return v.Provider.SimilaritySearch(search)
 }
 
-func (v *VectorStore) RemoveDocument(id uuid.UUID) bool {
-	return v.Provider.RemoveDocument(id)
+func (v *VectorStore) RemoveCollection(id uuid.UUID) bool {
+	return v.Provider.RemoveCollection()
 }

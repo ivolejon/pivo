@@ -8,7 +8,6 @@ import (
 	chroma_go "github.com/amikos-tech/chroma-go/types"
 	"github.com/google/uuid"
 	"github.com/tmc/langchaingo/embeddings"
-	"github.com/tmc/langchaingo/llms/ollama"
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/vectorstores/chroma"
 )
@@ -22,29 +21,12 @@ type meta = map[string]any
 
 var errAdd = errors.New("error adding document")
 
-func newEmbedder() (*embeddings.EmbedderImpl, error) {
-	llm, err := ollama.New()
-	if err != nil {
-		return nil, err
-	}
-	embedder, err := embeddings.NewEmbedder(llm)
-	if err != nil {
-		return nil, err
-	}
-	return embedder, nil
-}
-
-func NewChromaDB() (*ChromaDB, error) {
-	embedder, err := newEmbedder()
-	if err != nil {
-		return nil, err
-	}
-
+func NewChromaDB(embedder *embeddings.EmbedderImpl, collectionId uuid.UUID) (*ChromaDB, error) {
 	store, err := chroma.New(
 		chroma.WithChromaURL(os.Getenv("CHROMA_URL")),
 		chroma.WithDistanceFunction(chroma_go.COSINE),
 		chroma.WithEmbedder(embedder),
-		chroma.WithNameSpace(uuid.New().String()),
+		chroma.WithNameSpace(collectionId.String()),
 	)
 	if err != nil {
 		return nil, err
@@ -65,10 +47,11 @@ func (p *ChromaDB) AddDocuments(documents []Document) error {
 	return nil
 }
 
-func (p *ChromaDB) SimilaritySearch() string {
+func (p *ChromaDB) SimilaritySearch(search string) string {
 	return "SimilaritySearch"
 }
 
-func (p *ChromaDB) RemoveDocument(id uuid.UUID) bool {
-	return true
+func (p *ChromaDB) RemoveCollection() bool {
+	err := p.store.RemoveCollection()
+	return err == nil
 }
