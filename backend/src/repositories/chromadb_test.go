@@ -91,7 +91,7 @@ func TestChromaDBAddDocuments(t *testing.T) {
 			llm,
 			vectorstores.ToRetriever(chroma.Store, 1),
 		),
-		"What color is the desk?",
+		"What color is the house?",
 	)
 	require.NoError(t, err)
 	require.True(t, strings.Contains(strings.ToLower(result), "orange"), "expected orange in result")

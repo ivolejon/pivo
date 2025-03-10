@@ -11,6 +11,7 @@ import (
 	"github.com/tmc/langchaingo/vectorstores"
 )
 
+// TODO: Should these be public?
 type Provider interface {
 	AddDocuments([]schema.Document) ([]string, error)
 	RemoveDocument(string) error
@@ -20,9 +21,9 @@ type Provider interface {
 }
 
 type VectorStore struct {
-	Provider Provider
-	ClientId uuid.UUID
-	embedder *embeddings.EmbedderImpl
+	Provider     Provider
+	CollectionId uuid.UUID
+	embedder     *embeddings.EmbedderImpl
 }
 
 func NewVectorStore(llm llms.Model, collectionId uuid.UUID) (*VectorStore, error) {
@@ -38,9 +39,9 @@ func NewVectorStore(llm llms.Model, collectionId uuid.UUID) (*VectorStore, error
 			return nil, err
 		}
 		return &VectorStore{
-			Provider: store,
-			ClientId: collectionId,
-			embedder: embedder,
+			Provider:     store,
+			CollectionId: collectionId,
+			embedder:     embedder,
 		}, nil
 	default:
 		return nil, errors.New("llm is not of a supported type")
@@ -57,4 +58,8 @@ func (v *VectorStore) SimilaritySearch(search string, numOfResults int) ([]schem
 
 func (v *VectorStore) RemoveCollection(id uuid.UUID) bool {
 	return v.Provider.RemoveCollection()
+}
+
+func (v *VectorStore) Retriver(numOfDocs int) vectorstores.Retriever {
+	return v.Provider.GetRetriver(numOfDocs)
 }

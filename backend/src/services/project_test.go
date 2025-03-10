@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var clientID = uuid.MustParse("ec9f7562-9b9c-4abf-9256-4da3fc3171e9")
+var clientID = uuid.MustParse("0ef8a743-f92b-4280-937b-ef1e4736c626")
 
 func TestProjectServiceNew(t *testing.T) {
 	_ = services.NewProjectService(clientID)
@@ -30,7 +30,7 @@ func TestProjectServiceAddDocument(t *testing.T) {
 	svc := services.NewProjectService(clientID)
 	_ = svc.Init("ollama:llama3.2")
 	err := svc.AddDocument(services.AddDocumentParams{
-		Content:  "The color of the house is blue.",
+		Content:  "The color of the house on the hill is blue.",
 		FileName: "test.txt",
 	})
 	require.NoError(t, err)
@@ -49,7 +49,11 @@ func TestProjectServiceQuery(t *testing.T) {
 	svc := services.NewProjectService(clientID)
 	err := svc.Init("ollama:llama3.2")
 	require.NoError(t, err)
-	res, err := svc.Query("What color is the house? And who is Donald Trump?")
+	svc.AddDocument(services.AddDocumentParams{
+		Content:  "The color of the buss is yellow.",
+		FileName: "test.txt",
+	})
+	res, err := svc.Query("Who is Donald Trump? And what color is the buss?")
 	require.NoError(t, err)
-	require.Equal(t, *res, "hej")
+	require.Equal(t, "hej", *res)
 }
