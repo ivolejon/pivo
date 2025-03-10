@@ -10,6 +10,7 @@ import (
 	"github.com/tmc/langchaingo/embeddings"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/schema"
+	"github.com/tmc/langchaingo/vectorstores"
 	"github.com/tmc/langchaingo/vectorstores/chroma"
 )
 
@@ -34,6 +35,10 @@ func NewChromaDB(llm llms.Model, embedder *embeddings.EmbedderImpl, collectionId
 		Store: store,
 		ctx:   context.Background(),
 	}, nil
+}
+
+func (p *ChromaDB) GetRetriver(numOfDocs int) vectorstores.Retriever {
+	return vectorstores.ToRetriever(p.Store, numOfDocs)
 }
 
 func (p *ChromaDB) AddDocuments(documents []schema.Document) ([]string, error) {

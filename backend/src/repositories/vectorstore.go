@@ -8,6 +8,7 @@ import (
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/ollama"
 	"github.com/tmc/langchaingo/schema"
+	"github.com/tmc/langchaingo/vectorstores"
 )
 
 type Provider interface {
@@ -15,6 +16,7 @@ type Provider interface {
 	RemoveDocument(string) error
 	SimilaritySearch(string, int) ([]schema.Document, error)
 	RemoveCollection() bool
+	GetRetriver(int) vectorstores.Retriever
 }
 
 type VectorStore struct {
@@ -22,8 +24,6 @@ type VectorStore struct {
 	ClientId uuid.UUID
 	embedder *embeddings.EmbedderImpl
 }
-
-// type anyLLM = interface{}
 
 func NewVectorStore(llm llms.Model, collectionId uuid.UUID) (*VectorStore, error) {
 	// Here we can use muliple providers like ChromaDB, PgVector, etc. For now, we are using ChromaDB
