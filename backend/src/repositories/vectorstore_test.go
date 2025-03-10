@@ -46,14 +46,13 @@ func TestVectorStoreAddDocuments(t *testing.T) {
 		t.Errorf("Error creating VectorStore: %v", err)
 	}
 
-	err = store.AddDocuments([]schema.Document{
+	docIDs, err := store.AddDocuments([]schema.Document{
 		{
 			PageContent: "Tokyo is the capital of Japan",
 		},
 	})
-	if err != nil {
-		t.Errorf("Error adding documents: %v", err)
-	}
+	require.NoError(t, err)
+	require.Len(t, docIDs, 1)
 }
 
 func TestVectorStoreSimilaritySearch(t *testing.T) {
@@ -68,7 +67,7 @@ func TestVectorStoreSimilaritySearch(t *testing.T) {
 		t.Errorf("Error creating VectorStore: %v", err)
 	}
 
-	err = store.AddDocuments([]schema.Document{
+	docIDs, err := store.AddDocuments([]schema.Document{
 		{
 			PageContent: "Tokyo is the capital of Japan",
 		},
@@ -76,9 +75,8 @@ func TestVectorStoreSimilaritySearch(t *testing.T) {
 			PageContent: "Stockholm is the capital of Sweden",
 		},
 	})
-	if err != nil {
-		t.Errorf("Error adding documents: %v", err)
-	}
+	require.NoError(t, err)
+	require.Len(t, docIDs, 2)
 
 	result, err := store.SimilaritySearch("Tokyo", 1)
 	require.NoError(t, err)

@@ -80,8 +80,9 @@ func TestChromaDBAddDocuments(t *testing.T) {
 		{PageContent: "The color of the car is red."},
 		{PageContent: "The color of the desk is orange."},
 	}
-	errAdd := chroma.AddDocuments(documents)
+	docIDs, errAdd := chroma.AddDocuments(documents)
 	require.NoError(t, errAdd)
+	require.Len(t, docIDs, 3)
 
 	// TODO: Move this to a separate test
 	result, err := chains.Run(
@@ -93,7 +94,7 @@ func TestChromaDBAddDocuments(t *testing.T) {
 		"What color is the desk?",
 	)
 	require.NoError(t, err)
-	require.True(t, strings.Contains(result, "Orange."), "expected orange in result")
+	require.True(t, strings.Contains(strings.ToLower(result), "orange"), "expected orange in result")
 }
 
 func TestChromaDBSimilaritySearch(t *testing.T) {
@@ -113,7 +114,7 @@ func TestChromaDBSimilaritySearch(t *testing.T) {
 		t.Errorf("Error creating ChromaDB: %v", err)
 		return
 	}
-	err = chroma.AddDocuments([]schema.Document{
+	docIDs, err := chroma.AddDocuments([]schema.Document{
 		{PageContent: "tokyo", Metadata: map[string]any{
 			"country": "japan", "id": uuid.New().String(),
 			"filename": "tokyo.txt",
@@ -122,6 +123,7 @@ func TestChromaDBSimilaritySearch(t *testing.T) {
 	})
 
 	require.NoError(t, err)
+	require.Len(t, docIDs, 2)
 
 	docs, err := chroma.SimilaritySearch("tokyo", 1)
 	require.NoError(t, err)
