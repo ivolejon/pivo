@@ -11,7 +11,8 @@ import (
 )
 
 type Provider interface {
-	AddDocuments([]schema.Document) error
+	AddDocuments([]schema.Document) ([]string, error)
+	RemoveDocument(string) error
 	SimilaritySearch(string, int) ([]schema.Document, error)
 	RemoveCollection() bool
 }
@@ -46,7 +47,7 @@ func NewVectorStore(llm llms.Model, collectionId uuid.UUID) (*VectorStore, error
 	}
 }
 
-func (v *VectorStore) AddDocuments(documents []schema.Document) error {
+func (v *VectorStore) AddDocuments(documents []schema.Document) ([]string, error) {
 	return v.Provider.AddDocuments(documents)
 }
 
