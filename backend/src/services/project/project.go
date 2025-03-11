@@ -86,7 +86,7 @@ func (c *ProjectService) Query(question string) (*string, error) {
 
 	1.  **Prioritize Context:** Carefully analyze the information provided in the given context. Treat this context as your primary source of truth. If the context is insufficient, you can use the LLM to fill in the gaps.**
 	2. **Be Concise:** Provide a clear and concise response to the user query. Avoid unnecessary information or verbosity.**
-	3. **Be Accurate:** Never refer to the context or the LLM in your answer.**
+	3. **Never refer to the context or the LLM in your answer.**
 	4. **This is super important: Your output and answers should be json format, in this format, [{"title": string, "content": string}] for the different sections.**
 
 	**In essence, context first, LLM second.**
