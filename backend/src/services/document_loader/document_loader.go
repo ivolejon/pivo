@@ -37,7 +37,17 @@ func NewDocumentLoaderService(loader DocumentLoader, chunkSize int, overlap int)
 	}, nil
 }
 
-func (svc *DocumentLoaderService) LoadAsDocuments(data []byte) ([]schema.Document, error) {
+func (svc *DocumentLoaderService) LoadAsDocuments(data []byte, filename *string) ([]schema.Document, error) {
 	splitter := svc.splitter
-	return svc.loader.toDocuments(data, splitter)
+	docs, err := svc.loader.toDocuments(data, splitter)
+	if err != nil {
+		return []schema.Document{}, err
+	}
+	if filename == nil {
+		return docs, nil
+	}
+	for _, doc := range docs {
+		doc.Metadata["filename"] = filename
+	}
+	return docs, nil
 }
