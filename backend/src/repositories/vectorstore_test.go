@@ -9,11 +9,6 @@ import (
 )
 
 func TestVectorStoreNew(t *testing.T) {
-	// embedder, err := getOllamaEmbedder()
-	// if err != nil {
-	// 	t.Errorf("Error creating embedder: %v", err)
-	// 	return
-	// }
 	llm, err := getOllama()
 	if err != nil {
 		t.Errorf("Error creating LLM: %v", err)
@@ -24,14 +19,6 @@ func TestVectorStoreNew(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error creating VectorStore: %v", err)
 	}
-
-	// db, err := repositories.NewChromaDB(llm, embedder, testCollectionId)
-	// if err != nil {
-	// 	t.Errorf("Error creating ChromaDB: %v", err)
-	// }
-	// if db == nil {
-	// 	t.Errorf("ChromaDB is nil")
-	// }
 }
 
 func TestVectorStoreAddDocuments(t *testing.T) {
