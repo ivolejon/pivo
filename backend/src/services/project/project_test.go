@@ -46,7 +46,7 @@ func TestProjectServiceQuery(t *testing.T) {
 	svc := projectSvc.NewProjectService(clientID)
 	err := svc.Init("ollama:llama3.2")
 	require.NoError(t, err)
-	svc.AddDocument(projectSvc.AddDocumentParams{
+	_ = svc.AddDocument(projectSvc.AddDocumentParams{
 		Content:  "The color of the buss is yellow.",
 		FileName: "test.txt",
 	})

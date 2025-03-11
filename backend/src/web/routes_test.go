@@ -1,8 +1,13 @@
 package web_test
 
 import (
+	"bytes"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -22,9 +27,41 @@ func TestSetupDefaultRoutes(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "{\"message\":\"pong\"}", w.Body.String())
+}
 
-	// w = httptest.NewRecorder()
-	// req, _ = http.NewRequest("POST", "/somepost", nil)
+func TestFileUploadRoute(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 
-	// assert.Equal(t, http.StatusNotFound, w.Code)
+	router := gin.Default()
+	web.SetupDefaultRoutes(router)
+
+	testFilePath := "./test_data/pdf_file.pdf"
+
+	// Create a multipart form with the test file
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	file, err := os.Open(testFilePath)
+	assert.NoError(t, err)
+	defer file.Close()
+
+	part, err := writer.CreateFormFile("file", filepath.Base(testFilePath))
+	assert.NoError(t, err)
+	_, err = io.Copy(part, file)
+	assert.NoError(t, err)
+	err = writer.Close()
+	assert.NoError(t, err)
+
+	// Create the POST request
+	req, err := http.NewRequest("POST", "/upload", body)
+	assert.NoError(t, err)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	// Perform the request
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// Assertions
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Contains(t, w.Body.String(), "File uploaded successfully")
+	assert.Contains(t, w.Body.String(), filepath.Base(testFilePath))
 }
