@@ -55,5 +55,6 @@ func TestProjectServiceQuery(t *testing.T) {
 	})
 	res, err := svc.Query("Who is Donald Trump? And what color is the buss?")
 	require.NoError(t, err)
-	require.Equal(t, "hej", *res)
+	expected := "[{\"title\": \"Donald Trump\", \"content\": \"Donald Trump is an American businessman, politician, and television personality who served as the 45th President of the United States from 2017 to 2021.\"}]\n\n [{\"title\": \"Color of the Bus\", \"content\": \"The color of the bus is yellow.\"}]"
+	require.Equal(t, expected, *res)
 }

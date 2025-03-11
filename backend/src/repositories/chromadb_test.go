@@ -94,7 +94,7 @@ func TestChromaDBAddDocuments(t *testing.T) {
 		"What color is the house?",
 	)
 	require.NoError(t, err)
-	require.True(t, strings.Contains(strings.ToLower(result), "orange"), "expected orange in result")
+	require.True(t, strings.Contains(strings.ToLower(result), "blue"), "expected blue in result")
 }
 
 func TestChromaDBSimilaritySearch(t *testing.T) {

@@ -26,7 +26,7 @@ func NewDocumentLoaderService(loader DocumentLoader, chunkSize int, overlap int)
 	if chunkSize < 1 || overlap < 1 {
 		return nil, errors.New("ChunkSize or overlap values are too low")
 	}
-	// TODO: Think about if we could use multiple text-splitter
+	// TODO: Think about if we could other multiple text-splitter
 	splitter := textsplitter.NewRecursiveCharacter(
 		textsplitter.WithChunkSize(chunkSize),
 		textsplitter.WithChunkOverlap(overlap),
