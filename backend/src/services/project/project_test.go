@@ -38,10 +38,7 @@ func TestProjectServiceAddDocument(t *testing.T) {
 
 func TestProjectServiceAddDocumentNoInit(t *testing.T) {
 	svc := projectSvc.NewProjectService(clientID)
-	err := svc.AddDocument(projectSvc.AddDocumentParams{
-		Content:  "This is a test",
-		FileName: "test.txt",
-	})
+	err := svc.AddDocument(projectSvc.AddDocumentParams{})
 	require.Equal(t, "ProjectService not initialized, call Init() first", err.Error())
 }
 

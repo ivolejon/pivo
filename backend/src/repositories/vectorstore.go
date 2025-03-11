@@ -12,7 +12,7 @@ import (
 )
 
 // TODO: Should these be public?
-type Provider interface {
+type VectorStorageProvider interface {
 	AddDocuments([]schema.Document) ([]string, error)
 	RemoveDocument(string) error
 	SimilaritySearch(string, int) ([]schema.Document, error)
@@ -21,7 +21,7 @@ type Provider interface {
 }
 
 type VectorStore struct {
-	Provider     Provider
+	Provider     VectorStorageProvider
 	CollectionId uuid.UUID
 	embedder     *embeddings.EmbedderImpl
 }
