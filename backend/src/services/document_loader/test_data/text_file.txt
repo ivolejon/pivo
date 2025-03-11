@@ -1,0 +1,12 @@
+What is a .TXT file?
+TXT files are the most basic text file format, used for generating plain text files with little to no formatting or styling. You can open .TXT files on a variety of hardware without worrying about compatibility.
+
+Such documents are most commonly created using standard text software such as Microsoft Notepad and Apple TextEdit, which also act as .TXT readers.
+
+What is a TEXT file? Key differences between .TXT/TEXT format.
+There is no significant difference between .TXT and .TEXT file types. Both refer to files that contain plain text without any formatting or styling.
+
+The .TXT file extension is commonly used in Microsoft Windows such as Notepad.
+On the other hand, the .TEXT file extension is commonly used in Unix-based operating systems, such as Linux or macOS.
+What does .TXT stand for?
+TXT is simply a shortening of ‘text’. The complete name for this format is ‘Text File Document’, which is a great way to describe its use in generating non-formatted basic text.

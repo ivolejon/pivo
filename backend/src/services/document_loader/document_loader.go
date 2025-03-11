@@ -1,6 +1,7 @@
 package document_loader
 
 import (
+	"errors"
 	"io"
 
 	"github.com/tmc/langchaingo/schema"
@@ -22,6 +23,9 @@ type DocumentLoaderService struct {
 }
 
 func NewDocumentLoaderService(loader DocumentLoader, chunkSize int, overlap int) (*DocumentLoaderService, error) {
+	if chunkSize < 1 || overlap < 1 {
+		return nil, errors.New("ChunkSize or overlap values are too low")
+	}
 	// TODO: Think about if we could use multiple text-splitter
 	splitter := textsplitter.NewRecursiveCharacter(
 		textsplitter.WithChunkSize(chunkSize),

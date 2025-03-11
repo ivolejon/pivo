@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func loadPdfFile(path string) []byte {
+func loadFile(path string) []byte {
 	file, err := os.Open(path)
 	if err != nil {
 		panic(err)
@@ -37,12 +37,28 @@ func TestDocumentLoader__New(t *testing.T) {
 	require.IsType(t, &documentloaderSvc.DocumentLoaderService{}, svc)
 }
 
-func TestDocumentLoader__LoadDocument(t *testing.T) {
+func TestDocumentLoader__LoadPDFDocument(t *testing.T) {
 	loader := documentloaderSvc.PdfLoader{}
 	svc, err := documentloaderSvc.NewDocumentLoaderService(&loader, 500, 100)
 	require.NoError(t, err)
-	data := loadPdfFile("./test_data/pdf_file.pdf")
+	data := loadFile("./test_data/pdf_file.pdf")
 	docs, err := svc.LoadAsDocuments(data)
 	require.NoError(t, err)
-	require.Equal(t, len(docs), 77)
+	require.Equal(t, 77, len(docs))
+}
+
+func TestDocumentLoader__LoadTEXTDocument(t *testing.T) {
+	loader := documentloaderSvc.TextLoader{}
+	svc, err := documentloaderSvc.NewDocumentLoaderService(&loader, 300, 50)
+	require.NoError(t, err)
+	data := loadFile("./test_data/text_file.txt")
+	docs, err := svc.LoadAsDocuments(data)
+	require.NoError(t, err)
+	require.Equal(t, 5, len(docs))
+}
+
+func TestDocumentLoader__ChunkSizeTooLow(t *testing.T) {
+	loader := documentloaderSvc.TextLoader{}
+	_, err := documentloaderSvc.NewDocumentLoaderService(&loader, 0, 0)
+	require.EqualError(t, err, "ChunkSize or overlap values are too low", err)
 }
