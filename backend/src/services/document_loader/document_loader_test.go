@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/ivolejon/pivo/services/document_loader"
 	documentloaderSvc "github.com/ivolejon/pivo/services/document_loader"
 	"github.com/stretchr/testify/require"
 )
@@ -31,60 +32,90 @@ func loadFile(path string) []byte {
 }
 
 func TestDocumentLoader__New(t *testing.T) {
-	loader := documentloaderSvc.PdfLoader{}
-	svc, err := documentloaderSvc.NewDocumentLoaderService(&loader, 500, 100)
+	svc, err := documentloaderSvc.NewDocumentLoaderService()
 	require.NoError(t, err)
 	require.IsType(t, &documentloaderSvc.DocumentLoaderService{}, svc)
 }
 
 func TestDocumentLoader__LoadPDFDocument(t *testing.T) {
-	loader := documentloaderSvc.PdfLoader{}
-	svc, err := documentloaderSvc.NewDocumentLoaderService(&loader, 500, 100)
+	svc, err := documentloaderSvc.NewDocumentLoaderService()
 	require.NoError(t, err)
 	data := loadFile("./test_data/pdf_file.pdf")
-	docs, err := svc.LoadAsDocuments(data, nil)
+	params := document_loader.LoadAsDocumentsParams{
+		TypeOfLoader: "pdf",
+		ChunkSize:    500,
+		Overlap:      100,
+		Data:         data,
+		MetaData: map[string]any{
+			"filename": "pdf_file.pdf",
+		},
+	}
+	docs, err := svc.LoadAsDocuments(params)
 	require.NoError(t, err)
 	require.Equal(t, 77, len(docs))
 }
 
 func TestDocumentLoader__LoadTEXTDocument(t *testing.T) {
-	loader := documentloaderSvc.TextLoader{}
-	svc, err := documentloaderSvc.NewDocumentLoaderService(&loader, 300, 50)
+	svc, err := documentloaderSvc.NewDocumentLoaderService()
 	require.NoError(t, err)
 	data := loadFile("./test_data/text_file.txt")
-	docs, err := svc.LoadAsDocuments(data, nil)
+	params := document_loader.LoadAsDocumentsParams{
+		TypeOfLoader: "text",
+		ChunkSize:    300,
+		Overlap:      50,
+		Data:         data,
+	}
+	docs, err := svc.LoadAsDocuments(params)
 	require.NoError(t, err)
 	require.Equal(t, 5, len(docs))
 }
 
 func TestDocumentLoader__ChunkSizeTooLow(t *testing.T) {
-	loader := documentloaderSvc.TextLoader{}
-	_, err := documentloaderSvc.NewDocumentLoaderService(&loader, 0, 0)
-	require.EqualError(t, err, "ChunkSize or overlap values are too low", err)
+	svc, _ := documentloaderSvc.NewDocumentLoaderService()
+	_, errL := svc.LoadAsDocuments(document_loader.LoadAsDocumentsParams{
+		TypeOfLoader: "text",
+		ChunkSize:    0,
+		Overlap:      0,
+		Data:         []byte{},
+	})
+	require.EqualError(t, errL, "ChunkSize are too low", errL)
 }
 
 func TestDocumentLoader__LoadDocumentWithFilename(t *testing.T) {
-	loader := documentloaderSvc.TextLoader{}
-	svc, err := documentloaderSvc.NewDocumentLoaderService(&loader, 300, 50)
+	svc, err := documentloaderSvc.NewDocumentLoaderService()
 	require.NoError(t, err)
 	data := loadFile("./test_data/text_file.txt")
-	var filename string = "pivo.txt"
-	docs, err := svc.LoadAsDocuments(data, &filename)
+	params := document_loader.LoadAsDocumentsParams{
+		TypeOfLoader: "text",
+		ChunkSize:    300,
+		Overlap:      50,
+		Data:         data,
+		MetaData: map[string]any{
+			"filename": "text_file.txt",
+		},
+	}
+	docs, err := svc.LoadAsDocuments(params)
 	require.NoError(t, err)
 	require.Equal(t, 5, len(docs))
-	filenameFromDoc, ok := docs[0].Metadata["filename"].(*string)
-	require.Equal(t, ok, true)
-	require.Equal(t, filename, *filenameFromDoc)
+	filenameFromDoc, ok := docs[0].Metadata["filename"].(string)
+	require.Equal(t, true, ok)
+	require.Equal(t, "text_file.txt", filenameFromDoc)
 }
 
 func TestDocumentLoader__LoadDocumentWithNoFilename(t *testing.T) {
-	loader := documentloaderSvc.TextLoader{}
-	svc, err := documentloaderSvc.NewDocumentLoaderService(&loader, 300, 50)
+	svc, err := documentloaderSvc.NewDocumentLoaderService()
 	require.NoError(t, err)
 	data := loadFile("./test_data/text_file.txt")
-	docs, err := svc.LoadAsDocuments(data, nil)
+	params := document_loader.LoadAsDocumentsParams{
+		TypeOfLoader: "text",
+		ChunkSize:    300,
+		Overlap:      50,
+		Data:         data,
+	}
+	docs, err := svc.LoadAsDocuments(params)
 	require.NoError(t, err)
 	require.Equal(t, 5, len(docs))
-	_, ok := docs[0].Metadata["filename"].(*string)
-	require.Equal(t, ok, false)
+	filenameFromDoc, ok := docs[0].Metadata["filename"].(string)
+	require.Equal(t, false, ok)
+	require.Equal(t, "", filenameFromDoc)
 }

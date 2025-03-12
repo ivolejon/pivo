@@ -2,52 +2,76 @@ package document_loader
 
 import (
 	"errors"
-	"io"
 
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/textsplitter"
 )
 
-type FileReader struct {
-	Reader io.ReaderAt
-	Size   int64
-}
-
 type DocumentLoader interface {
 	toDocuments([]byte, textsplitter.TextSplitter) ([]schema.Document, error)
 }
 
-type DocumentLoaderService struct {
-	loader   DocumentLoader
-	splitter textsplitter.TextSplitter
+type DocumentLoaderService struct{}
+
+type LoadAsDocumentsParams struct {
+	TypeOfLoader string
+	ChunkSize    int
+	Overlap      int
+	Data         []byte
+	MetaData     map[string]any
 }
 
-func NewDocumentLoaderService(loader DocumentLoader, chunkSize int, overlap int) (*DocumentLoaderService, error) {
-	if chunkSize < 1 || overlap < 1 {
-		return nil, errors.New("ChunkSize or overlap values are too low")
-	}
-	// TODO: Think about if we could other multiple text-splitter
-	splitter := textsplitter.NewRecursiveCharacter(
-		textsplitter.WithChunkSize(chunkSize),
-		textsplitter.WithChunkOverlap(overlap),
-	)
-	return &DocumentLoaderService{
-		loader:   loader,
-		splitter: splitter,
-	}, nil
+func NewDocumentLoaderService() (*DocumentLoaderService, error) {
+	return &DocumentLoaderService{}, nil
 }
 
-func (svc *DocumentLoaderService) LoadAsDocuments(data []byte, filename *string) ([]schema.Document, error) {
-	splitter := svc.splitter
-	docs, err := svc.loader.toDocuments(data, splitter)
+func (svc *DocumentLoaderService) LoadAsDocuments(params LoadAsDocumentsParams) ([]schema.Document, error) {
+	err := validateLoadAsDocumentsParams(params)
 	if err != nil {
 		return []schema.Document{}, err
 	}
-	if filename == nil {
+	var loader DocumentLoader
+	switch params.TypeOfLoader {
+	case "pdf":
+		loader = &PdfLoader{}
+	case "text":
+		loader = &TextLoader{}
+	}
+
+	// TODO: Think about if we could other multiple text-splitter
+	splitter := textsplitter.NewRecursiveCharacter(
+		textsplitter.WithChunkSize(params.ChunkSize),
+		textsplitter.WithChunkOverlap(params.Overlap),
+	)
+	docs, err := loader.toDocuments(params.Data, splitter)
+	if err != nil {
+		return []schema.Document{}, err
+	}
+	if params.MetaData == nil {
 		return docs, nil
 	}
 	for _, doc := range docs {
-		doc.Metadata["filename"] = filename
+		for key, value := range params.MetaData {
+			doc.Metadata[key] = value
+		}
 	}
 	return docs, nil
+}
+
+func validateLoadAsDocumentsParams(params LoadAsDocumentsParams) error {
+	allowedLoaders := map[string]bool{
+		"pdf":  true,
+		"text": true,
+	}
+
+	if !allowedLoaders[params.TypeOfLoader] {
+		return errors.New("You can only add .pdf or .txt files")
+	}
+	if params.ChunkSize < 1 {
+		return errors.New("ChunkSize are too low")
+	}
+	if params.Overlap < 1 {
+		return errors.New("Overlap values are too low")
+	}
+	return nil
 }
