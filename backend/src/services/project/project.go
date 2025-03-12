@@ -1,17 +1,16 @@
 package services
 
 import (
-	"context"
 	"errors"
 	"slices"
 	"strings"
 
 	"github.com/google/uuid"
+	chain_store "github.com/ivolejon/pivo/chains"
 	"github.com/ivolejon/pivo/repositories"
-	"github.com/tmc/langchaingo/chains"
+	"github.com/ivolejon/pivo/services/ai"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/ollama"
-	"github.com/tmc/langchaingo/prompts"
 	"github.com/tmc/langchaingo/schema"
 )
 
@@ -79,31 +78,25 @@ func (c *ProjectService) Query(question string) (*string, error) {
 		return nil, errors.New("ProjectService not initialized, call Init() first")
 	}
 
-	systemTemplate := `
-	You are an expert information retrieval and synthesis agent. Your primary task is to answer user queries accurately and comprehensively.
-
-	**Process:**
-
-	1.  **Prioritize Context:** Carefully analyze the information provided in the given context. Treat this context as your primary source of truth. If the context is insufficient, you can use the LLM to fill in the gaps.**
-	2. **Be Concise:** Provide a clear and concise response to the user query. Avoid unnecessary information or verbosity.**
-	3. **Never refer to the context or the LLM in your answer.**
-	4. **This is super important: Your output and answers should be json format, in this format, [{"title": string, "content": string}] for the different sections.**
-
-	**In essence, context first, LLM second.**
-	This is the context: {{.input_documents}}\n\n
-	And this is the question: {{.question}}`
-
-	prompt := prompts.NewPromptTemplate(
-		systemTemplate,
-		[]string{"input_documents", "question"},
-	)
-	combineChain := chains.NewStuffDocuments(chains.NewLLMChain(c.llm, prompt))
-	retriever := c.vectorStore.Retriver(2)
-	chain := chains.NewRetrievalQA(combineChain, retriever)
-
-	res, err := chains.Run(context.Background(), chain, question)
+	cs := chain_store.NewChainStore(c.vectorStore)
+	aiSvc, err := ai.NewAiService()
 	if err != nil {
 		return nil, err
 	}
-	return &res, nil
+
+	baseChain := cs.GetBaseDocumentChain(c.llm)
+	formatAtProperDocumentChain := cs.GetFormatAsDocumentChain(c.llm)
+
+	aiSvc.AddChain(baseChain)
+	aiSvc.AddChain(formatAtProperDocumentChain)
+
+	res, err := aiSvc.Run(question)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func (c *ProjectService) Refine(question string) (*string, error) {
+	return nil, nil
 }
