@@ -8,6 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/stretchr/testify v1.9.0
 	github.com/tmc/langchaingo v0.1.13
+	github.com/ztrue/tracerr v0.4.0
 )
 
 require (

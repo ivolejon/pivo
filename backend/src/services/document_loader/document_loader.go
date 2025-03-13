@@ -1,10 +1,9 @@
 package document_loader
 
 import (
-	"errors"
-
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/textsplitter"
+	"github.com/ztrue/tracerr"
 )
 
 type DocumentLoader interface {
@@ -50,6 +49,7 @@ func (svc *DocumentLoaderService) LoadAsDocuments(params LoadAsDocumentsParams) 
 	if params.MetaData == nil {
 		return docs, nil
 	}
+	// If there are any metedata, add it to the documents.
 	for _, doc := range docs {
 		for key, value := range params.MetaData {
 			doc.Metadata[key] = value
@@ -65,13 +65,13 @@ func validateLoadAsDocumentsParams(params LoadAsDocumentsParams) error {
 	}
 
 	if !allowedLoaders[params.TypeOfLoader] {
-		return errors.New("You can only add .pdf or .txt files")
+		return tracerr.New("You can only add .pdf or .txt files")
 	}
 	if params.ChunkSize < 1 {
-		return errors.New("ChunkSize are too low")
+		return tracerr.New("ChunkSize are too low")
 	}
 	if params.Overlap < 1 {
-		return errors.New("Overlap values are too low")
+		return tracerr.New("Overlap values are too low")
 	}
 	return nil
 }
