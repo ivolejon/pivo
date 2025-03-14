@@ -9,35 +9,11 @@ import (
 	"github.com/ivolejon/pivo/repositories/vector_store"
 	"github.com/stretchr/testify/require"
 	"github.com/tmc/langchaingo/chains"
-	"github.com/tmc/langchaingo/embeddings"
-	"github.com/tmc/langchaingo/llms/ollama"
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/vectorstores"
 )
 
-func getOllama() (*ollama.LLM, error) {
-	llm, err := ollama.New(ollama.WithModel("llama3.2"))
-	if err != nil {
-		return nil, err
-	}
-	return llm, nil
-}
-
-func getOllamaEmbedder() (*embeddings.EmbedderImpl, error) {
-	llm, err := getOllama()
-	if err != nil {
-		return nil, err
-	}
-	embedder, err := embeddings.NewEmbedder(llm)
-	if err != nil {
-		return nil, err
-	}
-	return embedder, nil
-}
-
-var testCollectionId = uuid.New()
-
-func TestNewChromaDB(t *testing.T) {
+func TestNewPgVectorDb(t *testing.T) {
 	embedder, err := getOllamaEmbedder()
 	if err != nil {
 		t.Errorf("Error creating embedder: %v", err)
@@ -49,7 +25,7 @@ func TestNewChromaDB(t *testing.T) {
 		return
 	}
 
-	db, err := vector_store.NewChromaDB(llm, embedder, testCollectionId)
+	db, err := vector_store.NewPgVectore(llm, embedder, testCollectionId)
 	if err != nil {
 		t.Errorf("Error creating ChromaDB: %v", err)
 	}
@@ -58,7 +34,7 @@ func TestNewChromaDB(t *testing.T) {
 	}
 }
 
-func TestChromaDBAddDocuments(t *testing.T) {
+func TestPgVectorDbAddDocuments(t *testing.T) {
 	llm, err := getOllama()
 	if err != nil {
 		t.Errorf("Error creating LLM: %v", err)
@@ -70,7 +46,7 @@ func TestChromaDBAddDocuments(t *testing.T) {
 		t.Errorf("Error creating embedder: %v", err)
 		return
 	}
-	chroma, err := vector_store.NewChromaDB(llm, embedder, testCollectionId)
+	chroma, err := vector_store.NewPgVectore(llm, embedder, testCollectionId)
 	if err != nil {
 		t.Errorf("Error creating ChromaDB: %v", err)
 		return
@@ -97,7 +73,7 @@ func TestChromaDBAddDocuments(t *testing.T) {
 	require.True(t, strings.Contains(strings.ToLower(result), "blue"), "expected blue in result")
 }
 
-func TestChromaDBSimilaritySearch(t *testing.T) {
+func TestPgVectorDbSimilaritySearch(t *testing.T) {
 	llm, err := getOllama()
 	if err != nil {
 		t.Errorf("Error creating LLM: %v", err)
@@ -109,7 +85,7 @@ func TestChromaDBSimilaritySearch(t *testing.T) {
 		t.Errorf("Error creating embedder: %v", err)
 		return
 	}
-	chroma, err := vector_store.NewChromaDB(llm, embedder, testCollectionId)
+	chroma, err := vector_store.NewPgVectore(llm, embedder, testCollectionId)
 	if err != nil {
 		t.Errorf("Error creating ChromaDB: %v", err)
 		return
@@ -134,7 +110,7 @@ func TestChromaDBSimilaritySearch(t *testing.T) {
 	require.Equal(t, "japan", country)
 }
 
-func TestChromaDbRemoveCollection(t *testing.T) {
+func TestRemovePgVectorDbCollection(t *testing.T) {
 	llm, err := getOllama()
 	if err != nil {
 		t.Errorf("Error creating LLM: %v", err)
@@ -145,7 +121,7 @@ func TestChromaDbRemoveCollection(t *testing.T) {
 		t.Errorf("Error creating embedder: %v", err)
 		return
 	}
-	store, err := vector_store.NewChromaDB(llm, embedder, testCollectionId)
+	store, err := vector_store.NewPgVectore(llm, embedder, testCollectionId)
 	if err != nil {
 		t.Errorf("Error creating ChromaDB: %v", err)
 		return

@@ -25,5 +25,5 @@ func TestDbPing(t *testing.T) {
 	require.NoError(t, err)
 	err = dbCtx.Ping(ctx)
 	require.NoError(t, err)
-	dbCtx.Close()
+	// dbCtx.Close()
 }

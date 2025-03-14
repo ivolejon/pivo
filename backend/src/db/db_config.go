@@ -76,7 +76,8 @@ func ConnectAndGetPool(ctx context.Context) (*DB, error) {
 }
 
 func (db *DB) Ping(ctx context.Context) error {
-	return db.Pool.Ping(ctx)
+	p, _ := db.Pool.Acquire(ctx)
+	return p.Ping(ctx)
 }
 
 func (db *DB) Close() {

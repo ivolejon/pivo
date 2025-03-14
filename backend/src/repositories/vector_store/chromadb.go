@@ -2,8 +2,6 @@ package vector_store
 
 import (
 	"context"
-	"errors"
-	"os"
 
 	chroma_go "github.com/amikos-tech/chroma-go/types"
 	"github.com/google/uuid"
@@ -20,13 +18,10 @@ type ChromaDB struct {
 	ctx   context.Context
 }
 
-var errAdd = errors.New("error adding document")
-
 func NewChromaDB(llm llms.Model, embedder *embeddings.EmbedderImpl, collectionId uuid.UUID) (*ChromaDB, error) {
 	env := settings.Environment()
-	chromaUrl := os.Getenv(env.ChromaUrl)
 	store, err := chroma.New(
-		chroma.WithChromaURL(chromaUrl),
+		chroma.WithChromaURL(env.ChromaUrl),
 		chroma.WithDistanceFunction(chroma_go.COSINE),
 		chroma.WithEmbedder(embedder),
 		chroma.WithNameSpace(collectionId.String()),

@@ -11,6 +11,8 @@ import (
 	"github.com/tmc/langchaingo/vectorstores"
 )
 
+var errAdd = errors.New("error adding document")
+
 // TODO: Should these be public?
 type VectorStorageProvider interface {
 	AddDocuments([]schema.Document) ([]string, error)

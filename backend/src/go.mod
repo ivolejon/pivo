@@ -6,6 +6,7 @@ require (
 	github.com/amikos-tech/chroma-go v0.1.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/uuid v1.6.0
+	github.com/jackc/pgx/v5 v5.7.2
 	github.com/stretchr/testify v1.9.0
 	github.com/tmc/langchaingo v0.1.13
 	github.com/ztrue/tracerr v0.4.0
@@ -41,7 +42,6 @@ require (
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
-	github.com/jackc/pgx/v5 v5.7.2 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.17.6 // indirect
@@ -57,6 +57,7 @@ require (
 	github.com/nikolalohinski/gonja v1.5.3 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
+	github.com/pgvector/pgvector-go v0.1.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkoukk/tiktoken-go v0.1.6 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
