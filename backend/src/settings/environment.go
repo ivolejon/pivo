@@ -7,19 +7,29 @@ import (
 )
 
 type (
-	webServerPort = string
-	databaseUrl   = string
+	webServerPort     = string
+	databaseUrl       = string
+	ChromaDatabaseUrl = string
 )
 
 type EnvironmentSettings struct {
 	WebServerPort webServerPort
 	DatabaseUrl   databaseUrl
+	ChromaUrl     ChromaDatabaseUrl
 }
 
 var (
 	instance *EnvironmentSettings
 	once     sync.Once
 )
+
+func getChromaDbUrl() ChromaDatabaseUrl {
+	chromaDbUrl := os.Getenv("CHROMA_URL")
+	if chromaDbUrl == "" {
+		panic("CHROMA_URL is missing")
+	}
+	return chromaDbUrl
+}
 
 func getWebServerPort() webServerPort {
 	port := os.Getenv("PORT")
@@ -30,18 +40,19 @@ func getWebServerPort() webServerPort {
 }
 
 func getDbUrl() databaseUrl {
-	port := os.Getenv("DATABASE_URL")
-	if port == "" {
+	dbUrl := os.Getenv("DATABASE_URL")
+	if dbUrl == "" {
 		panic("DATABASE_URL is missing")
 	}
-	return port
+	return dbUrl
 }
 
 func Environment() *EnvironmentSettings {
 	once.Do(func() {
 		instance = &EnvironmentSettings{
-			WebServerPort: fmt.Sprintf(":%s", getWebServerPort()),
 			DatabaseUrl:   getDbUrl(),
+			ChromaUrl:     getChromaDbUrl(),
+			WebServerPort: fmt.Sprintf(":%s", getWebServerPort()),
 		}
 	})
 	return instance

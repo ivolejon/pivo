@@ -1,7 +1,0 @@
-{
-  "go.testEnvVars": {
-  "CHROMA_URL": "http://0.0.0.0:8000",
-  "OLLAMA_URL": "http://localhost:11434",
-  "OLLAMA_TEST_MODEL": "llama3.2"
-},
-}

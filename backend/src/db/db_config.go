@@ -52,7 +52,7 @@ func config() *pgxpool.Config {
 }
 
 type DB struct {
-	pool *pgxpool.Pool
+	Pool *pgxpool.Pool
 }
 
 var (
@@ -60,7 +60,7 @@ var (
 	Once       sync.Once
 )
 
-func Connect(ctx context.Context) (*DB, error) {
+func ConnectAndGetPool(ctx context.Context) (*DB, error) {
 	var err error
 
 	Once.Do(func() {
@@ -76,12 +76,9 @@ func Connect(ctx context.Context) (*DB, error) {
 }
 
 func (db *DB) Ping(ctx context.Context) error {
-	return db.pool.Ping(ctx)
+	return db.Pool.Ping(ctx)
 }
 
 func (db *DB) Close() {
-	db.pool.Close()
+	db.Pool.Close()
 }
-
-// conn, err := pgx.Connect(ctx, config.GetDatabaseURL())
-//

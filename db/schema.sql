@@ -34,8 +34,8 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.projects (
     id uuid NOT NULL,
-    client_id uuid,
-    title text NOT NULL,
+    client_id uuid NOT NULL,
+    title text,
     created_at timestamp with time zone NOT NULL
 );
 

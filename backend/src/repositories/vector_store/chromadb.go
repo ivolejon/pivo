@@ -7,6 +7,7 @@ import (
 
 	chroma_go "github.com/amikos-tech/chroma-go/types"
 	"github.com/google/uuid"
+	"github.com/ivolejon/pivo/settings"
 	"github.com/tmc/langchaingo/embeddings"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/schema"
@@ -22,8 +23,10 @@ type ChromaDB struct {
 var errAdd = errors.New("error adding document")
 
 func NewChromaDB(llm llms.Model, embedder *embeddings.EmbedderImpl, collectionId uuid.UUID) (*ChromaDB, error) {
+	env := settings.Environment()
+	chromaUrl := os.Getenv(env.ChromaUrl)
 	store, err := chroma.New(
-		chroma.WithChromaURL(os.Getenv("CHROMA_URL")),
+		chroma.WithChromaURL(chromaUrl),
 		chroma.WithDistanceFunction(chroma_go.COSINE),
 		chroma.WithEmbedder(embedder),
 		chroma.WithNameSpace(collectionId.String()),

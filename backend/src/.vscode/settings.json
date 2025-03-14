@@ -1,7 +1,0 @@
-{
-  "go.testEnvVars": {
-    "CHROMA_URL": "http://localhost:8000"
-  }
-}
-
-

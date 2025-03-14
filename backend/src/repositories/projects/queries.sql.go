@@ -8,14 +8,45 @@ package jobs
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const AddProject = `-- name: AddProject :one
+INSERT INTO projects (id, client_id, title, created_at)
+VALUES ($1, $2, $3, $4)
+RETURNING id, client_id, title, created_at
+`
+
+type AddProjectParams struct {
+	ID        uuid.UUID          `json:"id"`
+	ClientID  uuid.UUID          `json:"clientId"`
+	Title     pgtype.Text        `json:"title"`
+	CreatedAt pgtype.Timestamptz `json:"createdAt"`
+}
+
+func (q *Queries) AddProject(ctx context.Context, db DBTX, arg AddProjectParams) (Project, error) {
+	row := db.QueryRow(ctx, AddProject,
+		arg.ID,
+		arg.ClientID,
+		arg.Title,
+		arg.CreatedAt,
+	)
+	var i Project
+	err := row.Scan(
+		&i.ID,
+		&i.ClientID,
+		&i.Title,
+		&i.CreatedAt,
+	)
+	return i, err
+}
 
 const GetProjectsByClientId = `-- name: GetProjectsByClientId :many
 SELECT id, client_id, title, created_at FROM projects WHERE client_id = $1
 `
 
-func (q *Queries) GetProjectsByClientId(ctx context.Context, db DBTX, clientID pgtype.UUID) ([]Project, error) {
+func (q *Queries) GetProjectsByClientId(ctx context.Context, db DBTX, clientID uuid.UUID) ([]Project, error) {
 	rows, err := db.Query(ctx, GetProjectsByClientId, clientID)
 	if err != nil {
 		return nil, err

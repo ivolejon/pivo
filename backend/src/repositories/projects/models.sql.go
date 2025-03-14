@@ -11,8 +11,8 @@ import (
 
 type Project struct {
 	ID        uuid.UUID          `json:"id"`
-	ClientID  pgtype.UUID        `json:"clientId"`
-	Title     string             `json:"title"`
+	ClientID  uuid.UUID          `json:"clientId"`
+	Title     pgtype.Text        `json:"title"`
 	CreatedAt pgtype.Timestamptz `json:"createdAt"`
 }
 
