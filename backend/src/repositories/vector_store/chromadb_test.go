@@ -1,4 +1,4 @@
-package repositories_test
+package vector_store_test
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/ivolejon/pivo/repositories"
+	"github.com/ivolejon/pivo/repositories/vector_store"
 	"github.com/stretchr/testify/require"
 	"github.com/tmc/langchaingo/chains"
 	"github.com/tmc/langchaingo/embeddings"
@@ -49,7 +49,7 @@ func TestNewChromaDB(t *testing.T) {
 		return
 	}
 
-	db, err := repositories.NewChromaDB(llm, embedder, testCollectionId)
+	db, err := vector_store.NewChromaDB(llm, embedder, testCollectionId)
 	if err != nil {
 		t.Errorf("Error creating ChromaDB: %v", err)
 	}
@@ -70,7 +70,7 @@ func TestChromaDBAddDocuments(t *testing.T) {
 		t.Errorf("Error creating embedder: %v", err)
 		return
 	}
-	chroma, err := repositories.NewChromaDB(llm, embedder, testCollectionId)
+	chroma, err := vector_store.NewChromaDB(llm, embedder, testCollectionId)
 	if err != nil {
 		t.Errorf("Error creating ChromaDB: %v", err)
 		return
@@ -109,7 +109,7 @@ func TestChromaDBSimilaritySearch(t *testing.T) {
 		t.Errorf("Error creating embedder: %v", err)
 		return
 	}
-	chroma, err := repositories.NewChromaDB(llm, embedder, testCollectionId)
+	chroma, err := vector_store.NewChromaDB(llm, embedder, testCollectionId)
 	if err != nil {
 		t.Errorf("Error creating ChromaDB: %v", err)
 		return
@@ -145,7 +145,7 @@ func TestRemoveCollection(t *testing.T) {
 		t.Errorf("Error creating embedder: %v", err)
 		return
 	}
-	store, err := repositories.NewChromaDB(llm, embedder, testCollectionId)
+	store, err := vector_store.NewChromaDB(llm, embedder, testCollectionId)
 	if err != nil {
 		t.Errorf("Error creating ChromaDB: %v", err)
 		return

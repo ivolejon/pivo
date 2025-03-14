@@ -1,17 +1,14 @@
-networks:
-  net:
-    driver: bridge
 services:
   postgres:
-    build:
-      context: .
-      dockerfile: Dockerfile.postgres
+    image: pgvector/pgvector:pg17
+    restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      - POSTGRES_DB=pivo
+      - POSTGRES_USER=pivo
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_HOST_AUTH_METHOD=trust
     ports:
-      - "5432:5432"
+      - 5555:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data/
       - ../db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
@@ -25,8 +22,6 @@ services:
       - ANONYMIZED_TELEMETRY=${ANONYMIZED_TELEMETRY:-TRUE}
     ports:
       - 8000:8000
-    networks:
-      - net
 volumes:
   postgres_data:
   chroma-data:

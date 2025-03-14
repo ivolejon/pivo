@@ -1,17 +1,17 @@
 package chain_store
 
 import (
-	"github.com/ivolejon/pivo/repositories"
+	"github.com/ivolejon/pivo/repositories/vector_store"
 	"github.com/tmc/langchaingo/chains"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/prompts"
 )
 
 type ChainStore struct {
-	vectorStore *repositories.VectorStore
+	vectorStore *vector_store.VectorStore
 }
 
-func NewChainStore(vstore *repositories.VectorStore) *ChainStore {
+func NewChainStore(vstore *vector_store.VectorStore) *ChainStore {
 	return &ChainStore{
 		vectorStore: vstore,
 	}

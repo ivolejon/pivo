@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	chain_store "github.com/ivolejon/pivo/chains"
-	"github.com/ivolejon/pivo/repositories"
+	"github.com/ivolejon/pivo/repositories/vector_store"
 	"github.com/ivolejon/pivo/services/ai"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/ollama"
@@ -25,7 +25,7 @@ type (
 type ProjectService struct {
 	clientID    uuid.UUID
 	model       string
-	vectorStore *repositories.VectorStore
+	vectorStore *vector_store.VectorStore
 	llm         llms.Model
 }
 
@@ -52,7 +52,7 @@ func (c *ProjectService) Init(LLMmodelName string) error {
 
 	c.llm = llm
 
-	store, err := repositories.NewVectorStore(llm, c.clientID)
+	store, err := vector_store.NewVectorStore(llm, c.clientID)
 	if err != nil {
 		return errors.New("Error creating VectorStore")
 	}

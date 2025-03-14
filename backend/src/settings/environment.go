@@ -1,4 +1,4 @@
-package config
+package settings
 
 import (
 	"fmt"
@@ -8,20 +8,12 @@ import (
 
 type (
 	webServerPort = string
-	DbHost        = string
-	DbPort        = int
-	DbName        = string
-	DbUsername    = string
-	DbPassword    = string
+	databaseUrl   = string
 )
 
 type EnvironmentSettings struct {
 	WebServerPort webServerPort
-	DbHost        DbHost
-	DbPort        DbPort
-	DbName        DbName
-	DbUsername    DbUsername
-	DbPassword    DbPassword
+	DatabaseUrl   databaseUrl
 }
 
 var (
@@ -37,15 +29,19 @@ func getWebServerPort() webServerPort {
 	return port
 }
 
+func getDbUrl() databaseUrl {
+	port := os.Getenv("DATABASE_URL")
+	if port == "" {
+		panic("DATABASE_URL is missing")
+	}
+	return port
+}
+
 func Environment() *EnvironmentSettings {
 	once.Do(func() {
 		instance = &EnvironmentSettings{
 			WebServerPort: fmt.Sprintf(":%s", getWebServerPort()),
-			DbHost:        "",
-			DbPort:        0,
-			DbName:        "",
-			DbUsername:    "",
-			DbPassword:    "",
+			DatabaseUrl:   getDbUrl(),
 		}
 	})
 	return instance

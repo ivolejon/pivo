@@ -1,4 +1,4 @@
-package repositories
+package vector_store
 
 import (
 	"context"

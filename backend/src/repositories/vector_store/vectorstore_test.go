@@ -1,9 +1,9 @@
-package repositories_test
+package vector_store_test
 
 import (
 	"testing"
 
-	"github.com/ivolejon/pivo/repositories"
+	"github.com/ivolejon/pivo/repositories/vector_store"
 	"github.com/stretchr/testify/require"
 	"github.com/tmc/langchaingo/schema"
 )
@@ -15,7 +15,7 @@ func TestVectorStoreNew(t *testing.T) {
 		return
 	}
 
-	_, err = repositories.NewVectorStore(llm, testCollectionId)
+	_, err = vector_store.NewVectorStore(llm, testCollectionId)
 	if err != nil {
 		t.Errorf("Error creating VectorStore: %v", err)
 	}
@@ -28,7 +28,7 @@ func TestVectorStoreAddDocuments(t *testing.T) {
 		return
 	}
 
-	store, err := repositories.NewVectorStore(llm, testCollectionId)
+	store, err := vector_store.NewVectorStore(llm, testCollectionId)
 	if err != nil {
 		t.Errorf("Error creating VectorStore: %v", err)
 	}
@@ -49,7 +49,7 @@ func TestVectorStoreSimilaritySearch(t *testing.T) {
 		return
 	}
 
-	store, err := repositories.NewVectorStore(llm, testCollectionId)
+	store, err := vector_store.NewVectorStore(llm, testCollectionId)
 	if err != nil {
 		t.Errorf("Error creating VectorStore: %v", err)
 	}

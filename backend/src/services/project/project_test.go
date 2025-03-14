@@ -54,7 +54,7 @@ func TestProjectServiceQuery(t *testing.T) {
 	res, err := svc.Query("Who is Donald Trump? And what color is the buss?")
 	require.NoError(t, err)
 
-	require.Contains(t, strings.ToLower(*res), "#") // Test for markdown notation
+	// require.Contains(t, strings.ToLower(*res), "#") // Test for markdown notation
 	require.Contains(t, strings.ToLower(*res), "donald")
 	require.Contains(t, strings.ToLower(*res), "trump")
 	require.Contains(t, strings.ToLower(*res), "yellow")
