@@ -27,7 +27,7 @@ func NewDocumentLoaderService() *DocumentLoaderService {
 func (svc *DocumentLoaderService) LoadAsDocuments(params LoadAsDocumentsParams) ([]schema.Document, error) {
 	err := validateLoadAsDocumentsParams(params)
 	if err != nil {
-		return []schema.Document{}, err
+		return []schema.Document{}, tracerr.Wrap(err)
 	}
 	var loader DocumentLoader
 	switch params.TypeOfLoader {
@@ -44,7 +44,7 @@ func (svc *DocumentLoaderService) LoadAsDocuments(params LoadAsDocumentsParams) 
 	)
 	docs, err := loader.toDocuments(params.Data, splitter)
 	if err != nil {
-		return []schema.Document{}, err
+		return []schema.Document{}, tracerr.Wrap(err)
 	}
 	if params.MetaData == nil {
 		return docs, nil

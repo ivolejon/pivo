@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/tmc/langchaingo/chains"
+	"github.com/ztrue/tracerr"
 )
 
 type AiService struct {
@@ -23,11 +24,11 @@ func (svc *AiService) AddChain(chain chains.Chain) {
 func (svc *AiService) Run(question string) (*string, error) {
 	simpleSeqChain, err := chains.NewSimpleSequentialChain(svc.chains)
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 	answer, err := chains.Run(context.Background(), simpleSeqChain, question)
 	if err != nil {
 		return nil, err
 	}
-	return &answer, nil
+	return &answer, tracerr.Wrap(err)
 }

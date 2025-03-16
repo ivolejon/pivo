@@ -12,6 +12,7 @@ import (
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/ollama"
 	"github.com/tmc/langchaingo/schema"
+	"github.com/ztrue/tracerr"
 )
 
 type (
@@ -47,14 +48,14 @@ func (c *KnowledgeBaseService) Init(LLMmodelName string) error {
 	c.model = LLMmodelName
 	llm, err := ollama.New(ollama.WithModel(strings.Split(LLMmodelName, ":")[1]))
 	if err != nil {
-		return errors.New("Error creating LLM")
+		return tracerr.Wrap(err)
 	}
 
 	c.llm = llm
 
 	store, err := vector_store.NewVectorStore("ChromaDb", llm, c.clientID)
 	if err != nil {
-		return errors.New("Error creating VectorStore")
+		return tracerr.Wrap(err)
 	}
 	c.vectorStore = store
 	return nil
@@ -67,7 +68,7 @@ func (c *KnowledgeBaseService) AddDocuments(documents []schema.Document) (*[]str
 
 	ids, err := c.vectorStore.Provider.AddDocuments(documents)
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 
 	return &ids, nil
@@ -81,7 +82,7 @@ func (c *KnowledgeBaseService) Query(question string) (*string, error) {
 	cs := chain_store.NewChainStore(c.vectorStore)
 	aiSvc, err := ai.NewAiService()
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 
 	baseChain := cs.GetBaseDocumentChain(c.llm)
@@ -92,7 +93,7 @@ func (c *KnowledgeBaseService) Query(question string) (*string, error) {
 
 	res, err := aiSvc.Run(question)
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 	return res, nil
 }

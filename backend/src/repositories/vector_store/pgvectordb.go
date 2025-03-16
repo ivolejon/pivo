@@ -40,7 +40,7 @@ func NewPgVector(llm llms.Model, embedder *embeddings.EmbedderImpl, collectionId
 		pgvector.WithHNSWIndex(16, 64, "vector_l2_ops"),
 	)
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 	return &PgVectorDb{
 		Store: store,
@@ -58,13 +58,13 @@ func (p *PgVectorDb) AddDocuments(documents []schema.Document) ([]string, error)
 	if err != nil {
 		return []string{}, tracerr.Wrap(err)
 	}
-	return docIDs, nil
+	return docIDs, tracerr.Wrap(err)
 }
 
 func (p *PgVectorDb) SimilaritySearch(search string, numOfResults int) ([]schema.Document, error) {
 	result, err := p.Store.SimilaritySearch(context.Background(), search, numOfResults)
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 
 	return result, nil

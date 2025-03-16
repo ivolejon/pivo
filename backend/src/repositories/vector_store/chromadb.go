@@ -28,7 +28,7 @@ func NewChromaDB(llm llms.Model, embedder *embeddings.EmbedderImpl, collectionId
 		chroma.WithNameSpace(collectionId.String()),
 	)
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 	return &ChromaDB{
 		Store: store,
@@ -51,7 +51,7 @@ func (p *ChromaDB) AddDocuments(documents []schema.Document) ([]string, error) {
 func (p *ChromaDB) SimilaritySearch(search string, numOfResults int) ([]schema.Document, error) {
 	result, err := p.Store.SimilaritySearch(context.Background(), search, numOfResults)
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 
 	return result, nil
