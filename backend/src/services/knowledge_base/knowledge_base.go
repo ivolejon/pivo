@@ -1,4 +1,4 @@
-package services
+package knowledge_base
 
 import (
 	"errors"
@@ -17,27 +17,27 @@ import (
 type (
 	meta              = map[string]any
 	AddDocumentParams struct {
-		Content  string
-		FileName string
+		Documents []schema.Document
+		FileName  string
 	}
 )
 
-type ProjectService struct {
+type KnowledgeBaseService struct {
 	clientID    uuid.UUID
 	model       string
 	vectorStore *vector_store.VectorStore
 	llm         llms.Model
 }
 
-func NewProjectService(clientID uuid.UUID) *ProjectService {
-	return &ProjectService{
+func NewKnowledgeBaseService(clientID uuid.UUID) *KnowledgeBaseService {
+	return &KnowledgeBaseService{
 		vectorStore: nil,
 		model:       "",
 		clientID:    clientID,
 	}
 }
 
-func (c *ProjectService) Init(LLMmodelName string) error {
+func (c *KnowledgeBaseService) Init(LLMmodelName string) error {
 	// TODO: Break out the selection of the model into a separate function
 	supportedOllamModels := []string{"ollama:llama3.2"}
 	if !slices.Contains(supportedOllamModels, LLMmodelName) {
@@ -60,22 +60,22 @@ func (c *ProjectService) Init(LLMmodelName string) error {
 	return nil
 }
 
-func (c *ProjectService) AddDocument(params AddDocumentParams) error {
+func (c *KnowledgeBaseService) AddDocuments(documents []schema.Document) (*[]string, error) {
 	if c.vectorStore == nil {
-		return errors.New("ProjectService not initialized, call Init() first")
+		return nil, errors.New("KnowledgeBaseService not initialized, call Init() first")
 	}
-	_, err := c.vectorStore.Provider.AddDocuments([]schema.Document{
-		{PageContent: params.Content, Metadata: meta{"filename": params.FileName}},
-	})
+
+	ids, err := c.vectorStore.Provider.AddDocuments(documents)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	return &ids, nil
 }
 
-func (c *ProjectService) Query(question string) (*string, error) {
+func (c *KnowledgeBaseService) Query(question string) (*string, error) {
 	if c.vectorStore == nil {
-		return nil, errors.New("ProjectService not initialized, call Init() first")
+		return nil, errors.New("KnowledgeBaseService not initialized, call Init() first")
 	}
 
 	cs := chain_store.NewChainStore(c.vectorStore)
@@ -97,6 +97,6 @@ func (c *ProjectService) Query(question string) (*string, error) {
 	return res, nil
 }
 
-func (c *ProjectService) Refine(question string) (*string, error) {
+func (c *KnowledgeBaseService) Refine(question string) (*string, error) {
 	return nil, nil
 }

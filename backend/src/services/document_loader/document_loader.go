@@ -20,8 +20,8 @@ type LoadAsDocumentsParams struct {
 	MetaData     map[string]any
 }
 
-func NewDocumentLoaderService() (*DocumentLoaderService, error) {
-	return &DocumentLoaderService{}, nil
+func NewDocumentLoaderService() *DocumentLoaderService {
+	return &DocumentLoaderService{}
 }
 
 func (svc *DocumentLoaderService) LoadAsDocuments(params LoadAsDocumentsParams) ([]schema.Document, error) {

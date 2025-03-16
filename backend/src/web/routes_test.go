@@ -52,7 +52,7 @@ func TestFileUploadRoute(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create the POST request
-	req, err := http.NewRequest("POST", "/upload", body)
+	req, err := http.NewRequest("POST", "/knowledge", body)
 	assert.NoError(t, err)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
