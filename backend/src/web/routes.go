@@ -3,6 +3,7 @@ package web
 import (
 	"io"
 	"net/http"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -42,10 +43,11 @@ func handleAddDocumentToKnowledgeBase(c *gin.Context) {
 	data, err := io.ReadAll(file)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Prolems reading file"})
+		return
 	}
 
 	docParams := document_loader.LoadAsDocumentsParams{
-		TypeOfLoader: "pdf",
+		TypeOfLoader: filepath.Ext(header.Filename),
 		ChunkSize:    500,
 		Overlap:      50,
 		Data:         data,
@@ -55,11 +57,13 @@ func handleAddDocumentToKnowledgeBase(c *gin.Context) {
 	docs, err := documentLoaderSvc.LoadAsDocuments(docParams)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
 	}
 
 	docIDs, err := knowledgeBaseSvc.AddDocuments(docs)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{

@@ -31,9 +31,9 @@ func (svc *DocumentLoaderService) LoadAsDocuments(params LoadAsDocumentsParams) 
 	}
 	var loader DocumentLoader
 	switch params.TypeOfLoader {
-	case "pdf":
+	case "pdf", ".pdf":
 		loader = &PdfLoader{}
-	case "text":
+	case "text", "txt", ".txt":
 		loader = &TextLoader{}
 	}
 
@@ -61,7 +61,9 @@ func (svc *DocumentLoaderService) LoadAsDocuments(params LoadAsDocumentsParams) 
 func validateLoadAsDocumentsParams(params LoadAsDocumentsParams) error {
 	allowedLoaders := map[string]bool{
 		"pdf":  true,
+		".pdf": true,
 		"text": true,
+		".txt": true,
 	}
 
 	if !allowedLoaders[params.TypeOfLoader] {
