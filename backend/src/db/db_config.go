@@ -76,10 +76,14 @@ func ConnectAndGetPool(ctx context.Context) (*DB, error) {
 }
 
 func (db *DB) Ping(ctx context.Context) error {
-	p, _ := db.Pool.Acquire(ctx)
-	return p.Ping(ctx)
-}
-
-func (db *DB) Close() {
-	db.Pool.Close()
+	pool, err := db.Pool.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer pool.Conn().Close(ctx)
+	err = pool.Ping(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
 }

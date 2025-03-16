@@ -10,28 +10,20 @@ import (
 
 func TestVectorStoreNew(t *testing.T) {
 	llm, err := getOllama()
-	if err != nil {
-		t.Errorf("Error creating LLM: %v", err)
-		return
-	}
+	require.NoError(t, err)
 
-	_, err = vector_store.NewVectorStore(llm, testCollectionId)
-	if err != nil {
-		t.Errorf("Error creating VectorStore: %v", err)
-	}
+	vstore, err := vector_store.NewVectorStore("ChromaDb", llm, testCollectionId)
+	require.NoError(t, err)
+	defer vstore.Provider.Close()
 }
 
 func TestVectorStoreAddDocuments(t *testing.T) {
 	llm, err := getOllama()
-	if err != nil {
-		t.Errorf("Error creating LLM: %v", err)
-		return
-	}
+	require.NoError(t, err)
 
-	store, err := vector_store.NewVectorStore(llm, testCollectionId)
-	if err != nil {
-		t.Errorf("Error creating VectorStore: %v", err)
-	}
+	store, err := vector_store.NewVectorStore("ChromaDb", llm, testCollectionId)
+	require.NoError(t, err)
+	defer store.Provider.Close()
 
 	docIDs, err := store.AddDocuments([]schema.Document{
 		{
@@ -49,7 +41,7 @@ func TestVectorStoreSimilaritySearch(t *testing.T) {
 		return
 	}
 
-	store, err := vector_store.NewVectorStore(llm, testCollectionId)
+	store, err := vector_store.NewVectorStore("ChromaDb", llm, testCollectionId)
 	if err != nil {
 		t.Errorf("Error creating VectorStore: %v", err)
 	}

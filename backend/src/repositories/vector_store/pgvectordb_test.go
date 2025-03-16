@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/ivolejon/pivo/embedders"
 	"github.com/ivolejon/pivo/repositories/vector_store"
 	"github.com/stretchr/testify/require"
 	"github.com/tmc/langchaingo/chains"
@@ -14,7 +15,7 @@ import (
 )
 
 func TestNewPgVectorDb(t *testing.T) {
-	embedder, err := getOllamaEmbedder()
+	embedder, err := embedders.GetEmbedderNomicEmbedTextModel()
 	if err != nil {
 		t.Errorf("Error creating embedder: %v", err)
 		return
@@ -25,13 +26,14 @@ func TestNewPgVectorDb(t *testing.T) {
 		return
 	}
 
-	db, err := vector_store.NewPgVectore(llm, embedder, testCollectionId)
+	vstore, err := vector_store.NewPgVector(llm, embedder, testCollectionId)
 	if err != nil {
-		t.Errorf("Error creating ChromaDB: %v", err)
+		t.Errorf("Error creating PgVector: %v", err)
 	}
-	if db == nil {
-		t.Errorf("ChromaDB is nil")
+	if vstore == nil {
+		t.Errorf("PgVector is nil")
 	}
+	defer vstore.Close()
 }
 
 func TestPgVectorDbAddDocuments(t *testing.T) {
@@ -41,22 +43,23 @@ func TestPgVectorDbAddDocuments(t *testing.T) {
 		return
 	}
 
-	embedder, err := getOllamaEmbedder()
+	embedder, err := embedders.GetEmbedderNomicEmbedTextModel()
 	if err != nil {
 		t.Errorf("Error creating embedder: %v", err)
 		return
 	}
-	chroma, err := vector_store.NewPgVectore(llm, embedder, testCollectionId)
+	vstore, err := vector_store.NewPgVector(llm, embedder, testCollectionId)
 	if err != nil {
 		t.Errorf("Error creating ChromaDB: %v", err)
 		return
 	}
+	defer vstore.Close()
 	documents := []schema.Document{
 		{PageContent: "The color of the house is blue."},
 		{PageContent: "The color of the car is red."},
 		{PageContent: "The color of the desk is orange."},
 	}
-	docIDs, errAdd := chroma.AddDocuments(documents)
+	docIDs, errAdd := vstore.AddDocuments(documents)
 	require.NoError(t, errAdd)
 	require.Len(t, docIDs, 3)
 
@@ -65,7 +68,7 @@ func TestPgVectorDbAddDocuments(t *testing.T) {
 		context.TODO(),
 		chains.NewRetrievalQAFromLLM(
 			llm,
-			vectorstores.ToRetriever(chroma.Store, 1),
+			vectorstores.ToRetriever(vstore.Store, 1),
 		),
 		"What color is the house?",
 	)
@@ -80,17 +83,20 @@ func TestPgVectorDbSimilaritySearch(t *testing.T) {
 		return
 	}
 
-	embedder, err := getOllamaEmbedder()
+	embedder, err := embedders.GetEmbedderNomicEmbedTextModel()
 	if err != nil {
 		t.Errorf("Error creating embedder: %v", err)
 		return
 	}
-	chroma, err := vector_store.NewPgVectore(llm, embedder, testCollectionId)
+	vstore, err := vector_store.NewPgVector(llm, embedder, testCollectionId)
 	if err != nil {
 		t.Errorf("Error creating ChromaDB: %v", err)
 		return
 	}
-	docIDs, err := chroma.AddDocuments([]schema.Document{
+
+	defer vstore.Close()
+
+	docIDs, err := vstore.AddDocuments([]schema.Document{
 		{PageContent: "tokyo", Metadata: map[string]any{
 			"country": "japan", "id": uuid.New().String(),
 			"filename": "tokyo.txt",
@@ -101,7 +107,7 @@ func TestPgVectorDbSimilaritySearch(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, docIDs, 2)
 
-	docs, err := chroma.SimilaritySearch("tokyo", 1)
+	docs, err := vstore.SimilaritySearch("tokyo", 1)
 	require.NoError(t, err)
 	require.Len(t, docs, 1)
 	require.Equal(t, "tokyo", docs[0].PageContent)
@@ -116,17 +122,18 @@ func TestRemovePgVectorDbCollection(t *testing.T) {
 		t.Errorf("Error creating LLM: %v", err)
 		return
 	}
-	embedder, err := getOllamaEmbedder()
+	embedder, err := embedders.GetEmbedderNomicEmbedTextModel()
 	if err != nil {
 		t.Errorf("Error creating embedder: %v", err)
 		return
 	}
-	store, err := vector_store.NewPgVectore(llm, embedder, testCollectionId)
+	vstore, err := vector_store.NewPgVector(llm, embedder, testCollectionId)
 	if err != nil {
-		t.Errorf("Error creating ChromaDB: %v", err)
+		t.Errorf("Error creating PgVector: %v", err)
 		return
 	}
-	if !store.RemoveCollection() {
+	defer vstore.Close()
+	if !vstore.RemoveCollection() {
 		t.Errorf("Error removing collection")
 	}
 }

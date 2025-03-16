@@ -6,10 +6,10 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/ivolejon/pivo/embedders"
 	"github.com/ivolejon/pivo/repositories/vector_store"
 	"github.com/stretchr/testify/require"
 	"github.com/tmc/langchaingo/chains"
-	"github.com/tmc/langchaingo/embeddings"
 	"github.com/tmc/langchaingo/llms/ollama"
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/vectorstores"
@@ -23,22 +23,10 @@ func getOllama() (*ollama.LLM, error) {
 	return llm, nil
 }
 
-func getOllamaEmbedder() (*embeddings.EmbedderImpl, error) {
-	llm, err := getOllama()
-	if err != nil {
-		return nil, err
-	}
-	embedder, err := embeddings.NewEmbedder(llm)
-	if err != nil {
-		return nil, err
-	}
-	return embedder, nil
-}
-
 var testCollectionId = uuid.New()
 
 func TestNewChromaDB(t *testing.T) {
-	embedder, err := getOllamaEmbedder()
+	embedder, err := embedders.GetEmbedderNomicEmbedTextModel()
 	if err != nil {
 		t.Errorf("Error creating embedder: %v", err)
 		return
@@ -65,7 +53,7 @@ func TestChromaDBAddDocuments(t *testing.T) {
 		return
 	}
 
-	embedder, err := getOllamaEmbedder()
+	embedder, err := embedders.GetEmbedderNomicEmbedTextModel()
 	if err != nil {
 		t.Errorf("Error creating embedder: %v", err)
 		return
@@ -104,7 +92,7 @@ func TestChromaDBSimilaritySearch(t *testing.T) {
 		return
 	}
 
-	embedder, err := getOllamaEmbedder()
+	embedder, err := embedders.GetEmbedderNomicEmbedTextModel()
 	if err != nil {
 		t.Errorf("Error creating embedder: %v", err)
 		return
@@ -140,7 +128,7 @@ func TestChromaDbRemoveCollection(t *testing.T) {
 		t.Errorf("Error creating LLM: %v", err)
 		return
 	}
-	embedder, err := getOllamaEmbedder()
+	embedder, err := embedders.GetEmbedderNomicEmbedTextModel()
 	if err != nil {
 		t.Errorf("Error creating embedder: %v", err)
 		return

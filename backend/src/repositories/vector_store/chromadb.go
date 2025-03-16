@@ -11,6 +11,7 @@ import (
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/vectorstores"
 	"github.com/tmc/langchaingo/vectorstores/chroma"
+	"github.com/ztrue/tracerr"
 )
 
 type ChromaDB struct {
@@ -42,7 +43,7 @@ func (p *ChromaDB) GetRetriver(numOfDocs int) vectorstores.Retriever {
 func (p *ChromaDB) AddDocuments(documents []schema.Document) ([]string, error) {
 	docIDs, err := p.Store.AddDocuments(context.Background(), documents)
 	if err != nil {
-		return []string{}, errAdd
+		return []string{}, tracerr.Wrap(err)
 	}
 	return docIDs, nil
 }
@@ -63,4 +64,7 @@ func (p *ChromaDB) RemoveCollection() bool {
 
 func (p *ChromaDB) RemoveDocument(id string) error {
 	return nil
+}
+
+func (p *ChromaDB) Close() {
 }

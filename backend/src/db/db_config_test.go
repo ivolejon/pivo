@@ -14,9 +14,12 @@ func TestDbGetPool(t *testing.T) {
 }
 
 func TestDbCloseConnection(t *testing.T) {
-	dbCtx, err := db.ConnectAndGetPool(context.Background())
+	ctx := context.Background()
+	dbCtx, err := db.ConnectAndGetPool(ctx)
 	require.NoError(t, err)
-	dbCtx.Close()
+	conn, err := dbCtx.Pool.Acquire(ctx)
+	require.NoError(t, err)
+	conn.Conn().Close(ctx)
 }
 
 func TestDbPing(t *testing.T) {

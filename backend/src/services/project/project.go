@@ -52,7 +52,7 @@ func (c *ProjectService) Init(LLMmodelName string) error {
 
 	c.llm = llm
 
-	store, err := vector_store.NewVectorStore(llm, c.clientID)
+	store, err := vector_store.NewVectorStore("ChromaDb", llm, c.clientID)
 	if err != nil {
 		return errors.New("Error creating VectorStore")
 	}
