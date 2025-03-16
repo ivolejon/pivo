@@ -12,7 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ivolejon/pivo/web"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSetupDefaultRoutes(t *testing.T) {
@@ -25,8 +25,8 @@ func TestSetupDefaultRoutes(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/ping", nil)
 	router.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "{\"message\":\"pong\"}", w.Body.String())
+	require.Equal(t, http.StatusOK, w.Code)
+	require.Equal(t, "{\"message\":\"pong\"}", w.Body.String())
 }
 
 func TestAddFileToKnowledgeBase(t *testing.T) {
@@ -37,19 +37,16 @@ func TestAddFileToKnowledgeBase(t *testing.T) {
 
 	body, contentType := prepareFile("./test_data/pdf_file.pdf")
 
-	// Create the POST request
 	req, err := http.NewRequest("POST", "/knowledge", body)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	req.Header.Set("Content-Type", contentType)
 
-	// Perform the request
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
-	// Assertions
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Contains(t, w.Body.String(), "File uploaded successfully")
-	assert.Contains(t, w.Body.String(), "pdf_file.pdf")
+	require.Equal(t, http.StatusOK, w.Code)
+	require.Contains(t, w.Body.String(), "File uploaded successfully")
+	require.Contains(t, w.Body.String(), "pdf_file.pdf")
 }
 
 func TestAddNonSupportedFileToKnowledgeBase(t *testing.T) {
@@ -60,18 +57,15 @@ func TestAddNonSupportedFileToKnowledgeBase(t *testing.T) {
 
 	body, contentType := prepareFile("./test_data/unsupported.zip")
 
-	// Create the POST request
 	req, err := http.NewRequest("POST", "/knowledge", body)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	req.Header.Set("Content-Type", contentType)
 
-	// Perform the request
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
-	// Assertions
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-	assert.Contains(t, w.Body.String(), "You can only add .pdf or .txt files")
+	require.Equal(t, http.StatusBadRequest, w.Code)
+	require.Contains(t, w.Body.String(), "You can only add .pdf or .txt files")
 }
 
 func prepareFile(path string) (io.Reader, string) {
