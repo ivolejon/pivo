@@ -3,7 +3,7 @@ package embedders_test
 import (
 	"testing"
 
-	"github.com/ivolejon/pivo/embedders"
+	"github.com/ivolejon/pivo/repositories/embedders"
 	"github.com/stretchr/testify/require"
 )
 

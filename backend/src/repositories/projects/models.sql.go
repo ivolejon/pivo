@@ -2,18 +2,19 @@
 // versions:
 //   sqlc v1.28.0
 
-package jobs
+package projects
 
 import (
+	"time"
+
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Project struct {
-	ID        uuid.UUID          `json:"id"`
-	ClientID  uuid.UUID          `json:"clientId"`
-	Title     pgtype.Text        `json:"title"`
-	CreatedAt pgtype.Timestamptz `json:"createdAt"`
+	ID        uuid.UUID `json:"id"`
+	ClientID  uuid.UUID `json:"clientId"`
+	Title     *string   `json:"title"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 type SchemaMigration struct {

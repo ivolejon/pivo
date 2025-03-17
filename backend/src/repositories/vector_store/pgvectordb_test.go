@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/ivolejon/pivo/embedders"
+	"github.com/ivolejon/pivo/repositories/embedders"
 	"github.com/ivolejon/pivo/repositories/vector_store"
 	"github.com/stretchr/testify/require"
 	"github.com/tmc/langchaingo/chains"

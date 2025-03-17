@@ -21,6 +21,7 @@ func SetupDefaultRoutes(r *gin.Engine) {
 	})
 
 	defaultGroup.POST("/knowledge", handleAddDocumentToKnowledgeBase)
+	defaultGroup.POST("/project/question", handleQuestionAboutDocument)
 }
 
 func handleAddDocumentToKnowledgeBase(c *gin.Context) {
@@ -70,4 +71,18 @@ func handleAddDocumentToKnowledgeBase(c *gin.Context) {
 		"message":  "File uploaded successfully",
 		"filename": header.Filename, "inserted ids": docIDs,
 	})
+}
+
+type QuestionPayload struct {
+	Question string `json:"question" binding:"required"`
+}
+
+func handleQuestionAboutDocument(c *gin.Context) {
+	var payload QuestionPayload
+	err := c.ShouldBindJSON(&payload)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Success", "question": payload})
 }

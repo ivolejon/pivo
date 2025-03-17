@@ -3,13 +3,13 @@
 //   sqlc v1.28.0
 // source: queries.sql
 
-package jobs
+package projects
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const AddProject = `-- name: AddProject :one
@@ -19,10 +19,10 @@ RETURNING id, client_id, title, created_at
 `
 
 type AddProjectParams struct {
-	ID        uuid.UUID          `json:"id"`
-	ClientID  uuid.UUID          `json:"clientId"`
-	Title     pgtype.Text        `json:"title"`
-	CreatedAt pgtype.Timestamptz `json:"createdAt"`
+	ID        uuid.UUID `json:"id"`
+	ClientID  uuid.UUID `json:"clientId"`
+	Title     *string   `json:"title"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 func (q *Queries) AddProject(ctx context.Context, db DBTX, arg AddProjectParams) (Project, error) {

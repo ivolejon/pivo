@@ -2,7 +2,7 @@ package vector_store
 
 import (
 	"github.com/google/uuid"
-	"github.com/ivolejon/pivo/embedders"
+	"github.com/ivolejon/pivo/repositories/embedders"
 	"github.com/tmc/langchaingo/embeddings"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/schema"

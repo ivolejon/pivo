@@ -2,6 +2,7 @@ package web_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -14,6 +15,22 @@ import (
 	"github.com/ivolejon/pivo/web"
 	"github.com/stretchr/testify/require"
 )
+
+func prepareFile(path string) (io.Reader, string) {
+	// Create a multipart form with the test file
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	file, err := os.Open(path)
+	if err != nil {
+		panic("Error reading file")
+	}
+	defer file.Close()
+
+	part, _ := writer.CreateFormFile("file", filepath.Base(path))
+	io.Copy(part, file)
+	writer.Close()
+	return body, writer.FormDataContentType()
+}
 
 func TestSetupDefaultRoutes(t *testing.T) {
 	gin.SetMode(gin.TestMode) // Important for cleaner output in tests
@@ -68,18 +85,23 @@ func TestAddNonSupportedFileToKnowledgeBase(t *testing.T) {
 	require.Contains(t, w.Body.String(), "You can only add .pdf or .txt files")
 }
 
-func prepareFile(path string) (io.Reader, string) {
-	// Create a multipart form with the test file
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-	file, err := os.Open(path)
-	if err != nil {
-		panic("Error reading file")
-	}
-	defer file.Close()
+func TestSendQuestionToProject(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 
-	part, _ := writer.CreateFormFile("file", filepath.Base(path))
-	io.Copy(part, file)
-	writer.Close()
-	return body, writer.FormDataContentType()
+	router := gin.Default()
+	web.SetupDefaultRoutes(router)
+
+	question := map[string]string{"question": "What is the capital of France?"}
+	body, err := json.Marshal(question)
+	require.NoError(t, err)
+
+	req, err := http.NewRequest("POST", "/project/question", bytes.NewReader(body))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	require.Equal(t, http.StatusOK, w.Code)
+	require.Contains(t, w.Body.String(), "What is the capital of France?")
 }
