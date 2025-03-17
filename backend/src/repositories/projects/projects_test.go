@@ -15,12 +15,21 @@ func TestCanInitlizeRepo(t *testing.T) {
 }
 
 func TestGetProjectsByClientId(t *testing.T) {
-	clientId := uuid.New()
+	clientID := uuid.New()
 	repo, err := projects.NewProjectsRepository()
 	require.NoError(t, err)
-	projects, err := repo.GetProjectsByClientId(clientId)
+	projects, err := repo.GetProjectsByClientId(clientID)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(projects))
+}
+
+func TestGetProjectById(t *testing.T) {
+	projectID := uuid.New()
+	repo, err := projects.NewProjectsRepository()
+	require.NoError(t, err)
+	project, err := repo.GetProjectById(projectID)
+	require.NoError(t, err)
+	require.Nil(t, project)
 }
 
 func TestAddProject(t *testing.T) {

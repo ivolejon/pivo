@@ -42,6 +42,22 @@ func (q *Queries) AddProject(ctx context.Context, db DBTX, arg AddProjectParams)
 	return i, err
 }
 
+const GetProjectById = `-- name: GetProjectById :one
+SELECT id, client_id, title, created_at FROM projects WHERE id = $1
+`
+
+func (q *Queries) GetProjectById(ctx context.Context, db DBTX, id uuid.UUID) (Project, error) {
+	row := db.QueryRow(ctx, GetProjectById, id)
+	var i Project
+	err := row.Scan(
+		&i.ID,
+		&i.ClientID,
+		&i.Title,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const GetProjectsByClientId = `-- name: GetProjectsByClientId :many
 SELECT id, client_id, title, created_at FROM projects WHERE client_id = $1
 `

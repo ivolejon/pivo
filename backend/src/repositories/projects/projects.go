@@ -27,22 +27,52 @@ func NewProjectsRepository() (*ProjectsRepository, error) {
 	}, nil
 }
 
-func (r *ProjectsRepository) GetProjectsByClientId(clientId uuid.UUID) ([]Project, error) {
+func (r *ProjectsRepository) GetProjectsByClientId(clientID uuid.UUID) ([]Project, error) {
 	ctx := context.Background()
 	conn, errA := r.pool.Acquire(ctx)
 	if errA != nil {
 		return nil, tracerr.Wrap(errA)
 	}
 	defer conn.Release()
-	return r.Queries.GetProjectsByClientId(ctx, conn, clientId)
+	projects, err := r.Queries.GetProjectsByClientId(ctx, conn, clientID)
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+	return projects, nil
 }
 
-func (r *ProjectsRepository) AddProject(args AddProjectParams) (Project, error) {
+func (r *ProjectsRepository) AddProject(args AddProjectParams) (*Project, error) {
 	ctx := context.Background()
 	conn, errA := r.pool.Acquire(ctx)
 	if errA != nil {
-		return Project{}, tracerr.Wrap(errA)
+		return nil, tracerr.Wrap(errA)
 	}
 	defer conn.Release()
-	return r.Queries.AddProject(ctx, conn, args)
+	project, err := r.Queries.AddProject(ctx, conn, args)
+	if err != nil {
+		return nil, tracerr.Wrap(err)
+	}
+	return &project, nil
+}
+
+func (r *ProjectsRepository) GetProjectById(projectID uuid.UUID) (*Project, error) {
+	ctx := context.Background()
+	conn, errA := r.pool.Acquire(ctx)
+	if errA != nil {
+		return nil, tracerr.Wrap(errA)
+	}
+	defer conn.Release()
+	project, err := r.Queries.GetProjectById(ctx, conn, projectID)
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+	return &project, nil
 }
