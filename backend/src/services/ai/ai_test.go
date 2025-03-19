@@ -24,7 +24,7 @@ func TestSequentialWithTwoChains(t *testing.T) {
 	require.NoError(t, err)
 	steps := []chains.Chain{
 		chains.NewLLMChain(llm, prompts.NewPromptTemplate("{{.input}}", []string{"input"})),
-		chains.NewLLMChain(llm, prompts.NewPromptTemplate(`Take the text a contruct a json string in format {"content: text"}: {{.output}}`, []string{"output"})),
+		chains.NewLLMChain(llm, prompts.NewPromptTemplate(`Take the text and contruct a json string in format {"content: text"}: {{.output}}`, []string{"output"})),
 	}
 	simpleSeqChain, err := chains.NewSimpleSequentialChain(steps)
 	require.NoError(t, err)

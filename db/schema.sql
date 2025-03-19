@@ -29,6 +29,20 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: documents; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.documents (
+    id uuid NOT NULL,
+    embeddings_ids uuid[] NOT NULL,
+    filename text NOT NULL,
+    title text,
+    project_id uuid NOT NULL,
+    created_at timestamp with time zone NOT NULL
+);
+
+
+--
 -- Name: projects; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -47,6 +61,14 @@ CREATE TABLE public.projects (
 CREATE TABLE public.schema_migrations (
     version character varying(128) NOT NULL
 );
+
+
+--
+-- Name: documents documents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.documents
+    ADD CONSTRAINT documents_pkey PRIMARY KEY (id);
 
 
 --
@@ -75,4 +97,5 @@ ALTER TABLE ONLY public.schema_migrations
 --
 
 INSERT INTO public.schema_migrations (version) VALUES
-    ('20250313214936');
+    ('20250313214936'),
+    ('20250319194107');

@@ -13,9 +13,12 @@ import (
 )
 
 const AddProject = `-- name: AddProject :one
-INSERT INTO projects (id, client_id, title, created_at)
-VALUES ($1, $2, $3, $4)
-RETURNING id, client_id, title, created_at
+INSERT INTO
+  projects (id, client_id, title, created_at)
+VALUES
+  ($1, $2, $3, $4)
+RETURNING
+  id, client_id, title, created_at
 `
 
 type AddProjectParams struct {
@@ -43,7 +46,12 @@ func (q *Queries) AddProject(ctx context.Context, db DBTX, arg AddProjectParams)
 }
 
 const GetProjectById = `-- name: GetProjectById :one
-SELECT id, client_id, title, created_at FROM projects WHERE id = $1
+SELECT
+  id, client_id, title, created_at
+FROM
+  projects
+WHERE
+  id = $1
 `
 
 func (q *Queries) GetProjectById(ctx context.Context, db DBTX, id uuid.UUID) (Project, error) {
@@ -59,7 +67,12 @@ func (q *Queries) GetProjectById(ctx context.Context, db DBTX, id uuid.UUID) (Pr
 }
 
 const GetProjectsByClientId = `-- name: GetProjectsByClientId :many
-SELECT id, client_id, title, created_at FROM projects WHERE client_id = $1
+SELECT
+  id, client_id, title, created_at
+FROM
+  projects
+WHERE
+  client_id = $1
 `
 
 func (q *Queries) GetProjectsByClientId(ctx context.Context, db DBTX, clientID uuid.UUID) ([]Project, error) {
