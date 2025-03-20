@@ -29,12 +29,12 @@ RETURNING
 `
 
 type AddDocumentParams struct {
-	ID            uuid.UUID   `json:"id"`
-	EmbeddingsIds []uuid.UUID `json:"embeddingsIds"`
-	Filename      string      `json:"filename"`
-	Title         *string     `json:"title"`
-	ProjectID     uuid.UUID   `json:"projectId"`
-	CreatedAt     time.Time   `json:"createdAt"`
+	ID            uuid.UUID
+	EmbeddingsIds []uuid.UUID
+	Filename      string
+	Title         *string
+	ProjectID     uuid.UUID
+	CreatedAt     time.Time
 }
 
 func (q *Queries) AddDocument(ctx context.Context, db DBTX, arg AddDocumentParams) (Document, error) {

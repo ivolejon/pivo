@@ -22,10 +22,10 @@ RETURNING
 `
 
 type AddProjectParams struct {
-	ID        uuid.UUID `json:"id"`
-	ClientID  uuid.UUID `json:"clientId"`
-	Title     *string   `json:"title"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID        uuid.UUID
+	ClientID  uuid.UUID
+	Title     *string
+	CreatedAt time.Time
 }
 
 func (q *Queries) AddProject(ctx context.Context, db DBTX, arg AddProjectParams) (Project, error) {

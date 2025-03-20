@@ -11,21 +11,21 @@ import (
 )
 
 type Document struct {
-	ID            uuid.UUID   `json:"id"`
-	EmbeddingsIds []uuid.UUID `json:"embeddingsIds"`
-	Filename      string      `json:"filename"`
-	Title         *string     `json:"title"`
-	ProjectID     uuid.UUID   `json:"projectId"`
-	CreatedAt     time.Time   `json:"createdAt"`
+	ID            uuid.UUID
+	EmbeddingsIds []uuid.UUID
+	Filename      string
+	Title         *string
+	ProjectID     uuid.UUID
+	CreatedAt     time.Time
 }
 
 type Project struct {
-	ID        uuid.UUID `json:"id"`
-	ClientID  uuid.UUID `json:"clientId"`
-	Title     *string   `json:"title"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID        uuid.UUID
+	ClientID  uuid.UUID
+	Title     *string
+	CreatedAt time.Time
 }
 
 type SchemaMigration struct {
-	Version string `json:"version"`
+	Version string
 }
