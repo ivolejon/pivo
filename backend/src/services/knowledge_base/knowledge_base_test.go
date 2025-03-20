@@ -1,6 +1,7 @@
 package knowledge_base_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -61,27 +62,32 @@ func TestKnowledgeBaseServiceAddDocumentNoInit(t *testing.T) {
 	require.Equal(t, "KnowledgeBaseService not initialized, call Init() first", err.Error())
 }
 
-// FIXME: failing test
-// func TestKnowledgeBaseServiceQuery(t *testing.T) {
-// 	svc, err := knowledge_base.NewKnowledgeBaseService(clientID)
-// 	require.NoError(t, err)
-// 	err = svc.Init("ollama:llama3.2")
-// 	require.NoError(t, err)
+func TestKnowledgeBaseServiceQuery(t *testing.T) {
+	svc, err := knowledge_base.NewKnowledgeBaseService(clientID)
+	require.NoError(t, err)
+	err = svc.Init("ollama:llama3.2")
+	require.NoError(t, err)
 
-// 	docs := []schema.Document{
-// 		{
-// 			PageContent: "The color of the buss is yellow.",
-// 			Metadata:    map[string]any{"filename": "ivo.txt"},
-// 		},
-// 	}
+	docs := []schema.Document{
+		{
+			PageContent: "The color of the buss is yellow.",
+			Metadata:    map[string]any{"filename": "ivo.txt"},
+		},
+	}
+	params := knowledge_base.AddDocumentParams{
+		Documents: docs,
+		Filename:  "ivo.txt",
+		ProjectID: uuid.New(),
+		Title:     "New doc hello",
+	}
 
-// 	_, err = svc.AddDocuments(docs)
-// 	require.NoError(t, err)
-// 	res, err := svc.Query("Who is Donald Trump? And what color is the buss?")
-// 	require.NoError(t, err)
+	_, err = svc.AddDocuments(params)
+	require.NoError(t, err)
+	res, err := svc.Query("Who is Donald Trump? And what color is the buss?")
+	require.NoError(t, err)
 
-// 	// require.Contains(t, strings.ToLower(*res), "#") // Test for markdown notation
-// 	require.Contains(t, strings.ToLower(*res), "donald")
-// 	require.Contains(t, strings.ToLower(*res), "trump")
-// 	require.Contains(t, strings.ToLower(*res), "yellow")
-// }
+	// require.Contains(t, strings.ToLower(*res), "#") // Test for markdown notation
+	require.Contains(t, strings.ToLower(*res), "donald")
+	require.Contains(t, strings.ToLower(*res), "trump")
+	require.Contains(t, strings.ToLower(*res), "yellow")
+}
