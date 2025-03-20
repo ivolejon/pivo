@@ -12,17 +12,10 @@ import (
 )
 
 func SetupDefaultRoutes(r *gin.Engine) {
-	defaultGroup := r.Group("")
-
-	defaultGroup.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
-
-	defaultGroup.POST("/project/knowledge", handleAddDocumentToKnowledgeBase)
-	defaultGroup.POST("/project/question", handleQuestionAboutDocument)
-	defaultGroup.POST("/project/refine")
+	projectGroup := r.Group("/project")
+	projectGroup.POST("/knowledge", handleAddDocumentToKnowledgeBase)
+	projectGroup.POST("/question", handleQuestionAboutDocument)
+	projectGroup.POST("/refine")
 }
 
 func handleAddDocumentToKnowledgeBase(c *gin.Context) {

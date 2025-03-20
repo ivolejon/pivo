@@ -27,23 +27,11 @@ func prepareFile(path string) (io.Reader, string) {
 	defer file.Close()
 
 	part, _ := writer.CreateFormFile("file", filepath.Base(path))
-	io.Copy(part, file)
+	if _, err := io.Copy(part, file); err != nil {
+		panic("Error copying file content")
+	}
 	writer.Close()
 	return body, writer.FormDataContentType()
-}
-
-func TestSetupDefaultRoutes(t *testing.T) {
-	gin.SetMode(gin.TestMode) // Important for cleaner output in tests
-
-	router := gin.Default()
-	web.SetupDefaultRoutes(router)
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/ping", nil)
-	router.ServeHTTP(w, req)
-
-	require.Equal(t, http.StatusOK, w.Code)
-	require.Equal(t, "{\"message\":\"pong\"}", w.Body.String())
 }
 
 func TestAddFileToKnowledgeBase(t *testing.T) {
