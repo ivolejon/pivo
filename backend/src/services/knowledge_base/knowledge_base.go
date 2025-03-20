@@ -4,11 +4,14 @@ import (
 	"errors"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	chain_store "github.com/ivolejon/pivo/chains"
+	"github.com/ivolejon/pivo/repositories/documents"
 	"github.com/ivolejon/pivo/repositories/vector_store"
 	"github.com/ivolejon/pivo/services/ai"
+	"github.com/ivolejon/pivo/services/document_loader"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/ollama"
 	"github.com/tmc/langchaingo/schema"
@@ -19,23 +22,37 @@ type (
 	meta              = map[string]any
 	AddDocumentParams struct {
 		Documents []schema.Document
-		FileName  string
+		Filename  string
+		ProjectID uuid.UUID
+		Title     string
 	}
 )
 
 type KnowledgeBaseService struct {
-	clientID    uuid.UUID
-	model       string
-	vectorStore *vector_store.VectorStore
-	llm         llms.Model
+	clientID          uuid.UUID
+	model             string
+	vectorStore       *vector_store.VectorStore
+	llm               llms.Model
+	documentRepo      *documents.DocumentsRepository
+	documentLoaderSvc *document_loader.DocumentLoaderService
 }
 
-func NewKnowledgeBaseService(clientID uuid.UUID) *KnowledgeBaseService {
-	return &KnowledgeBaseService{
-		vectorStore: nil,
-		model:       "",
-		clientID:    clientID,
+func NewKnowledgeBaseService(clientID uuid.UUID) (*KnowledgeBaseService, error) {
+	documentRepo, err := documents.NewDocumentsRepository()
+	if err != nil {
+		return nil, tracerr.Wrap(err)
 	}
+	documentLoaderSvc, err := document_loader.NewDocumentLoaderService()
+	if err != nil {
+		return nil, tracerr.Wrap(err)
+	}
+	return &KnowledgeBaseService{
+		vectorStore:       nil,
+		model:             "",
+		clientID:          clientID,
+		documentRepo:      documentRepo,
+		documentLoaderSvc: documentLoaderSvc,
+	}, nil
 }
 
 func (c *KnowledgeBaseService) Init(LLMmodelName string) error {
@@ -61,17 +78,42 @@ func (c *KnowledgeBaseService) Init(LLMmodelName string) error {
 	return nil
 }
 
-func (c *KnowledgeBaseService) AddDocuments(documents []schema.Document) (*[]string, error) {
-	if c.vectorStore == nil {
+func (svc *KnowledgeBaseService) AddDocuments(params AddDocumentParams) (*[]uuid.UUID, error) {
+	if svc.vectorStore == nil {
 		return nil, errors.New("KnowledgeBaseService not initialized, call Init() first")
 	}
 
-	ids, err := c.vectorStore.Provider.AddDocuments(documents)
+	StringIds, err := svc.vectorStore.Provider.AddDocuments(params.Documents)
 	if err != nil {
 		return nil, tracerr.Wrap(err)
 	}
 
-	return &ids, nil
+	// This should not happend.
+	if len(StringIds) == 0 {
+		return nil, tracerr.New("Missing IDs from vector store insertion.")
+	}
+
+	embeddingsIds := make([]uuid.UUID, len(StringIds))
+
+	for i, v := range StringIds {
+		embeddingsIds[i] = uuid.MustParse(v)
+	}
+
+	newDocParams := documents.AddDocumentParams{
+		ID:            uuid.New(),
+		EmbeddingsIds: embeddingsIds,
+		Filename:      params.Filename,
+		Title:         &params.Title,
+		ProjectID:     params.ProjectID,
+		CreatedAt:     time.Now(),
+	}
+	_, err = svc.documentRepo.AddDocument(newDocParams)
+	if err != nil {
+		return nil, tracerr.Wrap(err)
+	}
+
+	// TODO: What should this return??
+	return &embeddingsIds, nil
 }
 
 func (c *KnowledgeBaseService) Query(question string) (*string, error) {

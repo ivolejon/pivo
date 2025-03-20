@@ -1,14 +1,14 @@
 package web
 
 import (
+	"errors"
 	"io"
 	"net/http"
-	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/ivolejon/pivo/services/document_loader"
-	"github.com/ivolejon/pivo/services/knowledge_base"
+	"github.com/ivolejon/pivo/services/upload"
 )
 
 func SetupDefaultRoutes(r *gin.Engine) {
@@ -20,19 +20,13 @@ func SetupDefaultRoutes(r *gin.Engine) {
 		})
 	})
 
-	defaultGroup.POST("/knowledge", handleAddDocumentToKnowledgeBase)
+	defaultGroup.POST("/project/knowledge", handleAddDocumentToKnowledgeBase)
 	defaultGroup.POST("/project/question", handleQuestionAboutDocument)
+	defaultGroup.POST("/project/refine")
 }
 
 func handleAddDocumentToKnowledgeBase(c *gin.Context) {
 	clientId := uuid.New()
-	documentLoaderSvc := document_loader.NewDocumentLoaderService()
-	knowledgeBaseSvc := knowledge_base.NewKnowledgeBaseService(clientId)
-	err := knowledgeBaseSvc.Init("ollama:llama3.2")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
 
 	file, header, err := c.Request.FormFile("file") // "file" is the key of the form-data
 	if err != nil {
@@ -47,29 +41,27 @@ func handleAddDocumentToKnowledgeBase(c *gin.Context) {
 		return
 	}
 
-	docParams := document_loader.LoadAsDocumentsParams{
-		TypeOfLoader: filepath.Ext(header.Filename),
-		ChunkSize:    500,
-		Overlap:      50,
-		Data:         data,
-		MetaData:     map[string]any{"filename": header.Filename},
-	}
-
-	docs, err := documentLoaderSvc.LoadAsDocuments(docParams)
+	uploadSvc, err := upload.NewUploadService(clientId)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	docIDs, err := knowledgeBaseSvc.AddDocuments(docs)
+	IDs, err := uploadSvc.Save(upload.UploadFileParams{Data: data, Filename: header.Filename})
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		if errors.Is(err, document_loader.ErrFileTypeNotSupported) ||
+			errors.Is(err, document_loader.ErrChunkSizeTooLow) ||
+			errors.Is(err, document_loader.ErrOverlapTooLow) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "File uploaded successfully",
-		"filename": header.Filename, "inserted ids": docIDs,
+		"filename": header.Filename, "inserted ids": IDs,
 	})
 }
 

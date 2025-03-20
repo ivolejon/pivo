@@ -1,6 +1,8 @@
 package document_loader
 
 import (
+	"errors"
+
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/textsplitter"
 	"github.com/ztrue/tracerr"
@@ -20,8 +22,14 @@ type LoadAsDocumentsParams struct {
 	MetaData     map[string]any
 }
 
-func NewDocumentLoaderService() *DocumentLoaderService {
-	return &DocumentLoaderService{}
+var (
+	ErrFileTypeNotSupported = errors.New("File type not supported.")
+	ErrChunkSizeTooLow      = errors.New("ChunkSize are too low.")
+	ErrOverlapTooLow        = errors.New("Overlap values are too low.")
+)
+
+func NewDocumentLoaderService() (*DocumentLoaderService, error) {
+	return &DocumentLoaderService{}, nil
 }
 
 func (svc *DocumentLoaderService) LoadAsDocuments(params LoadAsDocumentsParams) ([]schema.Document, error) {
@@ -67,13 +75,13 @@ func validateLoadAsDocumentsParams(params LoadAsDocumentsParams) error {
 	}
 
 	if !allowedLoaders[params.TypeOfLoader] {
-		return tracerr.New("You can only add .pdf or .txt files")
+		return ErrFileTypeNotSupported
 	}
 	if params.ChunkSize < 1 {
-		return tracerr.New("ChunkSize are too low")
+		return ErrChunkSizeTooLow
 	}
 	if params.Overlap < 1 {
-		return tracerr.New("Overlap values are too low")
+		return ErrOverlapTooLow
 	}
 	return nil
 }

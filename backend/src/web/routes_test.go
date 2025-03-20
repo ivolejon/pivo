@@ -54,7 +54,7 @@ func TestAddFileToKnowledgeBase(t *testing.T) {
 
 	body, contentType := prepareFile("./test_data/pdf_file.pdf")
 
-	req, err := http.NewRequest("POST", "/knowledge", body)
+	req, err := http.NewRequest("POST", "/project/knowledge", body)
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", contentType)
 
@@ -74,7 +74,7 @@ func TestAddNonSupportedFileToKnowledgeBase(t *testing.T) {
 
 	body, contentType := prepareFile("./test_data/unsupported.zip")
 
-	req, err := http.NewRequest("POST", "/knowledge", body)
+	req, err := http.NewRequest("POST", "/project/knowledge", body)
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", contentType)
 
@@ -82,7 +82,7 @@ func TestAddNonSupportedFileToKnowledgeBase(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	require.Equal(t, http.StatusBadRequest, w.Code)
-	require.Contains(t, w.Body.String(), "You can only add .pdf or .txt files")
+	require.Contains(t, w.Body.String(), "File type not supported.")
 }
 
 func TestSendQuestionToProject(t *testing.T) {

@@ -32,12 +32,12 @@ func loadFile(path string) []byte {
 }
 
 func TestDocumentLoader__New(t *testing.T) {
-	svc := documentloaderSvc.NewDocumentLoaderService()
+	svc, _ := documentloaderSvc.NewDocumentLoaderService()
 	require.IsType(t, &documentloaderSvc.DocumentLoaderService{}, svc)
 }
 
 func TestDocumentLoader__LoadPDFDocument(t *testing.T) {
-	svc := documentloaderSvc.NewDocumentLoaderService()
+	svc, _ := documentloaderSvc.NewDocumentLoaderService()
 
 	data := loadFile("./test_data/pdf_file.pdf")
 	params := document_loader.LoadAsDocumentsParams{
@@ -55,7 +55,7 @@ func TestDocumentLoader__LoadPDFDocument(t *testing.T) {
 }
 
 func TestDocumentLoader__LoadTEXTDocument(t *testing.T) {
-	svc := documentloaderSvc.NewDocumentLoaderService()
+	svc, _ := documentloaderSvc.NewDocumentLoaderService()
 
 	data := loadFile("./test_data/text_file.txt")
 	params := document_loader.LoadAsDocumentsParams{
@@ -70,7 +70,7 @@ func TestDocumentLoader__LoadTEXTDocument(t *testing.T) {
 }
 
 func TestDocumentLoader__ChunkSizeTooLow(t *testing.T) {
-	svc := documentloaderSvc.NewDocumentLoaderService()
+	svc, _ := documentloaderSvc.NewDocumentLoaderService()
 	_, errL := svc.LoadAsDocuments(document_loader.LoadAsDocumentsParams{
 		TypeOfLoader: "text",
 		ChunkSize:    0,
@@ -81,7 +81,7 @@ func TestDocumentLoader__ChunkSizeTooLow(t *testing.T) {
 }
 
 func TestDocumentLoader__LoadDocumentWithFilename(t *testing.T) {
-	svc := documentloaderSvc.NewDocumentLoaderService()
+	svc, _ := documentloaderSvc.NewDocumentLoaderService()
 	data := loadFile("./test_data/text_file.txt")
 	params := document_loader.LoadAsDocumentsParams{
 		TypeOfLoader: "text",
@@ -101,7 +101,7 @@ func TestDocumentLoader__LoadDocumentWithFilename(t *testing.T) {
 }
 
 func TestDocumentLoader__LoadDocumentWithNoFilename(t *testing.T) {
-	svc := documentloaderSvc.NewDocumentLoaderService()
+	svc, _ := documentloaderSvc.NewDocumentLoaderService()
 	data := loadFile("./test_data/text_file.txt")
 	params := document_loader.LoadAsDocumentsParams{
 		TypeOfLoader: "text",
