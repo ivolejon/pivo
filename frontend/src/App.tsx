@@ -1,37 +1,19 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import { Button, Card } from "@radix-ui/themes";
-import { Chat } from './components/Chat/Chat'
-import './styles/App.css'
+
+import './App.css'
+import { useProjectStore } from './store/projectStore';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { createProject } = useProjectStore();
 
+  const [message, setMessage] = useState('Welcome to Pivo')
   return (
     <>
-      <div className='app-container'>
-        <div className='top-bar-container'>ivo</div>
-        <div className='left-menu-container'>Menu</div>
-        <div className='main-container'>
-          <div className="left">
-            <Button onClick={() => setCount((count) => count + 1)}>
-              count is {count}
-            </Button>
-            <Chat />
-          </div>
-
-        </div>
-      </div >
-      {/* <h1>Vite + React</h1>
-      <div className="card">
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+      <h1>Welcome to Pivo</h1>
+      <div>
+        <button onClick={() => createProject({ title: "New Project" })}>
+        </button>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p> */}
     </>
   )
 }

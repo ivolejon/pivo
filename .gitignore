@@ -1,3 +1,4 @@
 docker/chromadb
 .vscode/settings.json
 TODO.md
+backend/src/.env.development

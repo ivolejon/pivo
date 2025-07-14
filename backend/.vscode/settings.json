@@ -1,9 +1,0 @@
-{
-  "go.testEnvVars": {
-    "CHROMA_URL": "http://localhost:8000",
-    "DATABASE_URL":"postgres://pivo:password@localhost:5555/pivo?sslmode=disable&connect_timeout=10",
-    "PORT":"8080"
-  },
-}
-
-

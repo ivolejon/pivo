@@ -45,7 +45,7 @@ func (svc *DocumentLoaderService) LoadAsDocuments(params LoadAsDocumentsParams) 
 		loader = &TextLoader{}
 	}
 
-	// TODO: Think about if we could other multiple text-splitter
+	// TODO: Think about if we could use other multiple text-splitter
 	splitter := textsplitter.NewRecursiveCharacter(
 		textsplitter.WithChunkSize(params.ChunkSize),
 		textsplitter.WithChunkOverlap(params.Overlap),

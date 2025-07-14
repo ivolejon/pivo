@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"sync"
+
+	"github.com/joho/godotenv"
 )
 
 type (
@@ -49,6 +51,8 @@ func getDbUrl() databaseUrl {
 
 func Environment() *EnvironmentSettings {
 	once.Do(func() {
+		_ = godotenv.Load(".env.development") // Load environment variables from .env file
+
 		instance = &EnvironmentSettings{
 			DatabaseUrl:   getDbUrl(),
 			ChromaUrl:     getChromaDbUrl(),
