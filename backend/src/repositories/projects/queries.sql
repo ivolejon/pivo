@@ -1,10 +1,13 @@
 -- name: GetProjectsByClientId :many
-SELECT
-  *
+SELECT DISTINCT
+  ON (id) *
 FROM
   projects
 WHERE
-  client_id = $1;
+  client_id = $1
+ORDER BY
+  id,
+  created_at DESC;
 
 -- name: AddProject :one
 INSERT INTO
@@ -15,9 +18,12 @@ RETURNING
   *;
 
 -- name: GetProjectById :one
-SELECT
-  *
+SELECT DISTINCT
+  ON (id) *
 FROM
   projects
 WHERE
-  id = $1;
+  id = $1
+ORDER BY
+  id,
+  created_at DESC;

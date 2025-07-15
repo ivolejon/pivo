@@ -12,6 +12,7 @@ function App() {
       <h1>Welcome to Pivo</h1>
       <div>
         <button onClick={() => createProject({ title: "New Project" })}>
+          Add Project
         </button>
       </div>
     </>

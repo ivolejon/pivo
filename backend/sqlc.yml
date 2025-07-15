@@ -29,7 +29,8 @@ overrides:
 sql:
   - engine: "postgresql"
     queries: "src/repositories/projects/queries.sql"
-    schema: "../db/schema.sql"
+    schema:
+        - "../db/schema.sql"
     gen:
       go:
         package: "projects"

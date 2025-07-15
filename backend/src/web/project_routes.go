@@ -75,7 +75,7 @@ func handleQuestionAboutDocument(c *gin.Context) {
 }
 
 func handleCreateProject(c *gin.Context) {
-	clientId := uuid.New()
+	clientId := uuid.MustParse("b15377e4-60f1-11f0-9ce3-834692c66f23") // Example client ID, replace with actual logic to get client ID
 
 	var project struct {
 		Title string `json:"title" binding:"required"`
