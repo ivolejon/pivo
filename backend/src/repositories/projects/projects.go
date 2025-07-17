@@ -62,6 +62,7 @@ func (r *ProjectsRepository) AddProject(args AddProjectParams) (*Project, error)
 func (r *ProjectsRepository) GetProjectById(projectID uuid.UUID) (*Project, error) {
 	ctx := context.Background()
 	conn, errA := r.pool.Acquire(ctx)
+
 	if errA != nil {
 		return nil, tracerr.Wrap(errA)
 	}

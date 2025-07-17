@@ -11,16 +11,17 @@ import (
 
 type UploadService struct {
 	clientID          uuid.UUID
+	projectID         uuid.UUID
 	documentLoaderSvc *document_loader.DocumentLoaderService
 	knowledgeBaseSvc  *knowledge_base.KnowledgeBaseService
 }
 
-func NewUploadService(clientID uuid.UUID) (*UploadService, error) {
+func NewUploadService(clientID uuid.UUID, projectID uuid.UUID) (*UploadService, error) {
 	documentLoaderSvc, err := document_loader.NewDocumentLoaderService()
 	if err != nil {
 		return nil, tracerr.Wrap(err)
 	}
-	knowledgeBaseSvc, err := knowledge_base.NewKnowledgeBaseService(clientID)
+	knowledgeBaseSvc, err := knowledge_base.NewKnowledgeBaseService(clientID, projectID)
 	if err != nil {
 		return nil, tracerr.Wrap(err)
 	}
@@ -33,6 +34,7 @@ func NewUploadService(clientID uuid.UUID) (*UploadService, error) {
 		documentLoaderSvc: documentLoaderSvc,
 		knowledgeBaseSvc:  knowledgeBaseSvc,
 		clientID:          clientID,
+		projectID:         projectID,
 	}, nil
 }
 
@@ -60,7 +62,7 @@ func (svc *UploadService) Save(params UploadFileParams) (*[]uuid.UUID, error) {
 	addDocParams := knowledge_base.AddDocumentParams{
 		Documents: docs,
 		Filename:  params.Filename,
-		ProjectID: svc.clientID,
+		ProjectID: svc.projectID,
 		Title:     params.Filename,
 	}
 

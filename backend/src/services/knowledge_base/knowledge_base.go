@@ -30,6 +30,7 @@ type (
 
 type KnowledgeBaseService struct {
 	clientID          uuid.UUID
+	projectID         uuid.UUID
 	model             string
 	vectorStore       *vector_store.VectorStore
 	llm               llms.Model
@@ -37,7 +38,7 @@ type KnowledgeBaseService struct {
 	documentLoaderSvc *document_loader.DocumentLoaderService
 }
 
-func NewKnowledgeBaseService(clientID uuid.UUID) (*KnowledgeBaseService, error) {
+func NewKnowledgeBaseService(clientID uuid.UUID, projectID uuid.UUID) (*KnowledgeBaseService, error) {
 	documentRepo, err := documents.NewDocumentsRepository()
 	if err != nil {
 		return nil, tracerr.Wrap(err)
@@ -50,31 +51,32 @@ func NewKnowledgeBaseService(clientID uuid.UUID) (*KnowledgeBaseService, error) 
 		vectorStore:       nil,
 		model:             "",
 		clientID:          clientID,
+		projectID:         projectID,
 		documentRepo:      documentRepo,
 		documentLoaderSvc: documentLoaderSvc,
 	}, nil
 }
 
-func (c *KnowledgeBaseService) Init(LLMmodelName string) error {
+func (svc *KnowledgeBaseService) Init(LLMmodelName string) error {
 	// TODO: Break out the selection of the model into a separate function
 	supportedOllamModels := []string{"ollama:llama3.2"}
 	if !slices.Contains(supportedOllamModels, LLMmodelName) {
 		return errors.New("Model not supported")
 	}
 
-	c.model = LLMmodelName
+	svc.model = LLMmodelName
 	llm, err := ollama.New(ollama.WithModel(strings.Split(LLMmodelName, ":")[1]))
 	if err != nil {
 		return tracerr.Wrap(err)
 	}
 
-	c.llm = llm
+	svc.llm = llm
 
-	store, err := vector_store.NewVectorStore("ChromaDb", llm, c.clientID)
+	store, err := vector_store.NewVectorStore("ChromaDb", llm, svc.projectID)
 	if err != nil {
 		return tracerr.Wrap(err)
 	}
-	c.vectorStore = store
+	svc.vectorStore = store
 	return nil
 }
 
@@ -116,19 +118,19 @@ func (svc *KnowledgeBaseService) AddDocuments(params AddDocumentParams) (*[]uuid
 	return &embeddingsIds, nil
 }
 
-func (c *KnowledgeBaseService) Query(question string) (*string, error) {
-	if c.vectorStore == nil {
+func (svc *KnowledgeBaseService) Query(question string) (*string, error) {
+	if svc.vectorStore == nil {
 		return nil, errors.New("KnowledgeBaseService not initialized, call Init() first")
 	}
 
-	cs := chain_store.NewChainStore(c.vectorStore)
+	cs := chain_store.NewChainStore(svc.vectorStore)
 	aiSvc, err := ai.NewAiService()
 	if err != nil {
 		return nil, tracerr.Wrap(err)
 	}
 
-	baseChain := cs.GetBaseDocumentChain(c.llm)
-	formatAtProperDocumentChain := cs.GetFormatAsDocumentChain(c.llm)
+	baseChain := cs.GetBaseDocumentChain(svc.llm)
+	formatAtProperDocumentChain := cs.GetFormatAsDocumentChain(svc.llm)
 
 	aiSvc.AddChain(baseChain)
 	aiSvc.AddChain(formatAtProperDocumentChain)
@@ -140,6 +142,6 @@ func (c *KnowledgeBaseService) Query(question string) (*string, error) {
 	return res, nil
 }
 
-func (c *KnowledgeBaseService) Refine(question string) (*string, error) {
+func (svc *KnowledgeBaseService) Refine(question string) (*string, error) {
 	return nil, nil
 }

@@ -33,17 +33,18 @@ func NewVectorStore(storeType string, llm llms.Model, collectionId uuid.UUID) (*
 	var err error
 	var store VectorStorageProvider
 
-	if storeType == "ChromaDb" {
+	switch storeType {
+	case "ChromaDb":
 		store, err = NewChromaDB(llm, embedder, collectionId)
 		if err != nil {
 			return nil, tracerr.Wrap(err)
 		}
-	} else if storeType == "PgVector" {
+	case "PgVector":
 		store, err = NewPgVector(llm, embedder, collectionId)
 		if err != nil {
 			return nil, tracerr.Wrap(err)
 		}
-	} else {
+	default:
 		return nil, tracerr.New("Vector store is not of a supported type")
 	}
 

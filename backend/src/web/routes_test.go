@@ -79,7 +79,10 @@ func TestSendQuestionToProject(t *testing.T) {
 	router := gin.Default()
 	web.SetupDefaultRoutes(router)
 
-	question := map[string]string{"question": "What is the capital of France?"}
+	question := map[string]string{
+		"question":  "What is the capital of France?",
+		"projectId": "8f2b7acc-6321-11f0-80c8-eb9676f528c1",
+	}
 	body, err := json.Marshal(question)
 	require.NoError(t, err)
 
@@ -91,5 +94,5 @@ func TestSendQuestionToProject(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	require.Equal(t, http.StatusOK, w.Code)
-	require.Contains(t, w.Body.String(), "What is the capital of France?")
+	require.Contains(t, w.Body.String(), "Paris")
 }

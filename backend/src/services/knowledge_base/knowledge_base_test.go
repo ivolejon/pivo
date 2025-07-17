@@ -10,29 +10,32 @@ import (
 	"github.com/tmc/langchaingo/schema"
 )
 
-var clientID = uuid.MustParse("0ef8a743-f92b-4280-937b-ef1e4736c626")
+var (
+	clientID  = uuid.MustParse("0ef8a743-f92b-4280-937b-ef1e4736c626")
+	projectID = uuid.MustParse("8f2b7acc-6321-11f0-80c8-eb9676f528c1")
+)
 
 func TestKnowledgeBaseServiceNew(t *testing.T) {
-	_, err := knowledge_base.NewKnowledgeBaseService(clientID)
+	_, err := knowledge_base.NewKnowledgeBaseService(clientID, projectID)
 	require.NoError(t, err)
 }
 
 func TestKnowledgeBaseServiceInit(t *testing.T) {
-	client, err := knowledge_base.NewKnowledgeBaseService(clientID)
+	client, err := knowledge_base.NewKnowledgeBaseService(clientID, projectID)
 	require.NoError(t, err)
 	err = client.Init("ollama:llama3.2")
 	require.NoError(t, err)
 }
 
 func TestKnowledgeBaseServiceInitWithFaultModel(t *testing.T) {
-	svc, err := knowledge_base.NewKnowledgeBaseService(clientID)
+	svc, err := knowledge_base.NewKnowledgeBaseService(clientID, projectID)
 	require.NoError(t, err)
 	err = svc.Init("ollama:llama3.3")
 	require.Equal(t, "Model not supported", err.Error())
 }
 
 func TestKnowledgeBaseServiceAddDocument(t *testing.T) {
-	svc, errSvc := knowledge_base.NewKnowledgeBaseService(clientID)
+	svc, errSvc := knowledge_base.NewKnowledgeBaseService(clientID, projectID)
 	require.NoError(t, errSvc)
 	_ = svc.Init("ollama:llama3.2")
 
@@ -56,14 +59,14 @@ func TestKnowledgeBaseServiceAddDocument(t *testing.T) {
 }
 
 func TestKnowledgeBaseServiceAddDocumentNoInit(t *testing.T) {
-	svc, err := knowledge_base.NewKnowledgeBaseService(clientID)
+	svc, err := knowledge_base.NewKnowledgeBaseService(clientID, projectID)
 	require.NoError(t, err)
 	_, err = svc.AddDocuments(knowledge_base.AddDocumentParams{})
 	require.Equal(t, "KnowledgeBaseService not initialized, call Init() first", err.Error())
 }
 
 func TestKnowledgeBaseServiceQuery(t *testing.T) {
-	svc, err := knowledge_base.NewKnowledgeBaseService(clientID)
+	svc, err := knowledge_base.NewKnowledgeBaseService(clientID, projectID)
 	require.NoError(t, err)
 	err = svc.Init("ollama:llama3.2")
 	require.NoError(t, err)
