@@ -12,6 +12,7 @@ import (
 	"github.com/ivolejon/pivo/repositories/vector_store"
 	"github.com/ivolejon/pivo/services/ai"
 	"github.com/ivolejon/pivo/services/document_loader"
+	streamer_svc "github.com/ivolejon/pivo/services/streamer"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/ollama"
 	"github.com/tmc/langchaingo/schema"
@@ -36,6 +37,7 @@ type KnowledgeBaseService struct {
 	llm               llms.Model
 	documentRepo      *documents.DocumentsRepository
 	documentLoaderSvc *document_loader.DocumentLoaderService
+	streamer          *streamer_svc.Hub
 }
 
 func NewKnowledgeBaseService(clientID uuid.UUID, projectID uuid.UUID) (*KnowledgeBaseService, error) {
@@ -54,6 +56,7 @@ func NewKnowledgeBaseService(clientID uuid.UUID, projectID uuid.UUID) (*Knowledg
 		projectID:         projectID,
 		documentRepo:      documentRepo,
 		documentLoaderSvc: documentLoaderSvc,
+		streamer:          streamer_svc.CreateStreamHub(),
 	}, nil
 }
 
@@ -135,11 +138,26 @@ func (svc *KnowledgeBaseService) Query(question string) (*string, error) {
 	aiSvc.AddChain(baseChain)
 	aiSvc.AddChain(formatAtProperDocumentChain)
 
-	res, err := aiSvc.Run(question)
-	if err != nil {
-		return nil, tracerr.Wrap(err)
+	// Start the AI service run in a goroutine to receive streamed results via the channel
+	resultChan := aiSvc.GetStreamChan()
+
+	go aiSvc.Run(question)
+
+	for res := range resultChan {
+		if res.Error != nil {
+			svc.streamer.PublishToClient(svc.clientID.String(), []byte("Error: "+res.Error.Error()))
+			return nil, tracerr.Wrap(res.Error)
+		}
+		if res.Status == "completed" {
+			response := string(res.Chunk)
+			svc.streamer.PublishToClient(svc.clientID.String(), []byte(response))
+			return &response, nil
+		}
+		if res.Status == "streaming" {
+			svc.streamer.PublishToClient(svc.clientID.String(), res.Chunk)
+		}
 	}
-	return res, nil
+	return nil, errors.New("No response received from AI service")
 }
 
 func (svc *KnowledgeBaseService) Refine(question string) (*string, error) {

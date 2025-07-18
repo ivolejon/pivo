@@ -38,7 +38,7 @@ func TestAddFileToKnowledgeBase(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	router := gin.Default()
-	web.SetupDefaultRoutes(router)
+	web.SetupProjectRoutes(router)
 
 	body, contentType := prepareFile("./test_data/pdf_file.pdf")
 
@@ -58,7 +58,7 @@ func TestAddNonSupportedFileToKnowledgeBase(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	router := gin.Default()
-	web.SetupDefaultRoutes(router)
+	web.SetupProjectRoutes(router)
 
 	body, contentType := prepareFile("./test_data/unsupported.zip")
 
@@ -77,7 +77,7 @@ func TestSendQuestionToProject(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	router := gin.Default()
-	web.SetupDefaultRoutes(router)
+	web.SetupProjectRoutes(router)
 
 	question := map[string]string{
 		"question":  "What is the capital of France?",

@@ -22,7 +22,7 @@ type QuestionPayload struct {
 	Question  string    `json:"question" binding:"required"`
 }
 
-func SetupDefaultRoutes(r *gin.Engine) {
+func SetupProjectRoutes(r *gin.Engine) {
 	projectGroup := r.Group("/project")
 	projectGroup.POST("/create-project", handleCreateProject)
 	projectGroup.POST("/add-document", handleAddDocumentToKnowledgeBase)
