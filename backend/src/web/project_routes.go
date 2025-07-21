@@ -31,7 +31,7 @@ func SetupProjectRoutes(r *gin.Engine) {
 }
 
 func handleAddDocumentToKnowledgeBase(c *gin.Context) {
-	clientId := uuid.New()
+	clientID := uuid.New()
 	projectID := c.Request.FormValue("projectId")
 
 	if projectID == "" {
@@ -57,7 +57,7 @@ func handleAddDocumentToKnowledgeBase(c *gin.Context) {
 		return
 	}
 
-	uploadSvc, err := upload.NewUploadService(clientId, projectUUID)
+	uploadSvc, err := upload.NewUploadService(clientID, projectUUID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

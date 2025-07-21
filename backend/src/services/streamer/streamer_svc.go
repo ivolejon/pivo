@@ -170,7 +170,7 @@ func (c *Client) writePump() {
 // serveWs handles websocket requests from the peer.
 func ServeWs(hub *Hub, c *gin.Context) {
 	// Get clientID from query parameter
-	clientID := c.Query("clientID")
+	clientID := c.Query("client_id")
 	if clientID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "clientID query parameter is required"})
 		return

@@ -126,19 +126,19 @@ func (svc *KnowledgeBaseService) Query(question string) (*string, error) {
 		return nil, errors.New("KnowledgeBaseService not initialized, call Init() first")
 	}
 
-	cs := chain_store.NewChainStore(svc.vectorStore)
+	store := chain_store.NewChainStore(svc.vectorStore)
+
 	aiSvc, err := ai.NewAiService()
 	if err != nil {
 		return nil, tracerr.Wrap(err)
 	}
 
-	baseChain := cs.GetBaseDocumentChain(svc.llm)
-	formatAtProperDocumentChain := cs.GetFormatAsDocumentChain(svc.llm)
+	baseChain := store.GetBaseDocumentChain(svc.llm)
+	formatAtProperDocumentChain := store.GetFormatAsDocumentChain(svc.llm)
 
 	aiSvc.AddChain(baseChain)
 	aiSvc.AddChain(formatAtProperDocumentChain)
 
-	// Start the AI service run in a goroutine to receive streamed results via the channel
 	resultChan := aiSvc.GetStreamChan()
 
 	go aiSvc.Run(question)

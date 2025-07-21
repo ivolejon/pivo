@@ -10,8 +10,8 @@ import (
 func main() {
 	env := settings.Environment()
 	server := NewHTTPServer()
-	web.SetupWebsocket(server)
 	web.SetupProjectRoutes(server)
+	web.SetupWebsocket(server)
 	if err := server.Run(env.WebServerPort); err != nil {
 		fmt.Println("Error starting server:", err)
 	}
