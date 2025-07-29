@@ -149,6 +149,18 @@ func TestSendQuestionToProject(t *testing.T) {
 	require.Contains(t, w.Body.String(), "Paris")
 }
 
+func QuestionRequestFactory() *http.Request {
+	question := map[string]string{
+		"question":  "What is the capital of France?",
+		"projectId": "8f2b7acc-6321-11f0-80c8-eb9676f528c1",
+	}
+	body, _ := json.Marshal(question)
+
+	req, _ := http.NewRequest("POST", "/project/question", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	return req
+}
+
 func TestSendQuestionWithoutProjectID(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -208,16 +220,7 @@ func TestCanConnectWebsocketStreaming(t *testing.T) {
 	}()
 
 	go func() {
-		question := map[string]string{
-			"question":  "What is the capital of France?",
-			"projectId": "8f2b7acc-6321-11f0-80c8-eb9676f528c1",
-		}
-		body, err := json.Marshal(question)
-		require.NoError(t, err)
-
-		req, err := http.NewRequest("POST", "/project/question", bytes.NewReader(body))
-		require.NoError(t, err)
-		req.Header.Set("Content-Type", "application/json")
+		req := QuestionRequestFactory()
 
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)

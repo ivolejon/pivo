@@ -139,23 +139,15 @@ func (c *Client) writePump() {
 				return
 			}
 
-			w, err := c.Conn.NextWriter(websocket.TextMessage)
-			if err != nil {
-				log.Printf("Error getting next writer for client %s: %v", c.ID, err)
+			// **Modification Starts Here**
+			// Send only the current message.
+			// Do not attempt to drain and send multiple messages in one WebSocket frame.
+			if err := c.Conn.WriteMessage(websocket.TextMessage, message); err != nil {
+				log.Printf("Error writing message for client %s: %v", c.ID, err)
 				return
 			}
-			w.Write(message)
+			// **Modification Ends Here**
 
-			// Add queued chat messages to the current websocket message.
-			n := len(c.Send)
-			for i := 0; i < n; i++ {
-				w.Write(<-c.Send)
-			}
-
-			if err := w.Close(); err != nil {
-				log.Printf("Error closing writer for client %s: %v", c.ID, err)
-				return
-			}
 		case <-ticker.C:
 			// Send a ping message to keep the connection alive
 			c.Conn.SetWriteDeadline(time.Now().Add(10 * time.Second))

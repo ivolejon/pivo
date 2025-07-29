@@ -14,15 +14,15 @@ type AiService struct {
 }
 
 type AiStreamingEvent struct {
-	Chunk  []byte
-	Error  error
-	Status string // e.g., "streaming", "completed", "error"
+	Chunk  string `json:"chunk"`
+	Error  error  `json:"error"`
+	Status string `json:"status"` // e.g., "streaming", "completed", "error"
 }
 
 func NewAiService() (*AiService, error) {
 	return &AiService{
 		chains:     []chains.Chain{},
-		streamChan: make(chan AiStreamingEvent),
+		streamChan: make(chan AiStreamingEvent, 1),
 	}, nil
 }
 
@@ -42,7 +42,7 @@ func (svc *AiService) Run(question string) error {
 
 	streamingFunc := func(ctx context.Context, chunk []byte) error {
 		log.Printf("Received chunk: %s", chunk)
-		svc.streamChan <- AiStreamingEvent{Chunk: chunk, Status: "streaming"}
+		svc.streamChan <- AiStreamingEvent{Chunk: string(chunk), Status: "streaming"}
 		return nil
 	}
 
@@ -56,6 +56,6 @@ func (svc *AiService) Run(question string) error {
 	if err != nil {
 		svc.streamChan <- AiStreamingEvent{Error: err, Status: "error"}
 	}
-	svc.streamChan <- AiStreamingEvent{Chunk: []byte(answer), Status: "completed"}
+	svc.streamChan <- AiStreamingEvent{Chunk: answer, Status: "completed"}
 	return nil
 }

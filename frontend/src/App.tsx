@@ -1,10 +1,12 @@
-import { useState } from 'react'
-
 import './App.css'
 import { useProjectStore } from './store/projectStore';
+import { useWebSocketHandler } from './lib/webSocket';
+
+const clientId = "b15377e4-60f1-11f0-9ce3-834692c66f23";
 
 function App() {
   const { createProject, uploadDocument, askQuestion } = useProjectStore();
+  const { connectionStatus, answer } = useWebSocketHandler(clientId);
 
   async function uploadFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -24,8 +26,7 @@ function App() {
       projectId: "103cc611-e095-4f22-ac8e-87a943e54d23",
     };
     try {
-      const response = await askQuestion(question);
-      alert(`Response: ${response}`);
+      await askQuestion(question);
     } catch (error: any) {
       alert(`Error asking question: ${error.message}`);
     }
@@ -35,6 +36,8 @@ function App() {
     <>
       <h1>Welcome to Pivo</h1>
       <div>
+        <p>WebSocket Status: {connectionStatus}</p>
+        <p>{answer}</p>
         <button onClick={() => createProject({ title: "New Project" })}>
           Add Project
         </button>

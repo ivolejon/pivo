@@ -1,6 +1,7 @@
 package knowledge_base
 
 import (
+	"encoding/json"
 	"errors"
 	"slices"
 	"strings"
@@ -134,27 +135,31 @@ func (svc *KnowledgeBaseService) Query(question string) (*string, error) {
 	}
 
 	baseChain := store.GetBaseDocumentChain(svc.llm)
-	formatAtProperDocumentChain := store.GetFormatAsDocumentChain(svc.llm)
+	// formatAtProperDocumentChain := store.GetFormatAsDocumentChain(svc.llm)
 
 	aiSvc.AddChain(baseChain)
-	aiSvc.AddChain(formatAtProperDocumentChain)
+	// aiSvc.AddChain(formatAtProperDocumentChain)
 
 	resultChan := aiSvc.GetStreamChan()
 
 	go aiSvc.Run(question)
 
 	for res := range resultChan {
+		jsonData, err := json.Marshal(res)
+		if err != nil {
+			return nil, errors.New("No response received from AI service")
+		}
 		if res.Error != nil {
-			svc.streamer.PublishToClient(svc.clientID.String(), []byte("Error: "+res.Error.Error()))
+			svc.streamer.PublishToClient(svc.clientID.String(), jsonData)
 			return nil, tracerr.Wrap(res.Error)
 		}
 		if res.Status == "completed" {
 			response := string(res.Chunk)
-			svc.streamer.PublishToClient(svc.clientID.String(), []byte(response))
+			svc.streamer.PublishToClient(svc.clientID.String(), jsonData)
 			return &response, nil
 		}
 		if res.Status == "streaming" {
-			svc.streamer.PublishToClient(svc.clientID.String(), res.Chunk)
+			svc.streamer.PublishToClient(svc.clientID.String(), jsonData)
 		}
 	}
 	return nil, errors.New("No response received from AI service")
