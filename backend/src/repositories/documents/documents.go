@@ -3,6 +3,7 @@ package documents
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/ivolejon/pivo/db"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/ztrue/tracerr"
@@ -40,20 +41,20 @@ func (r *DocumentsRepository) AddDocument(args AddDocumentParams) (*Document, er
 	return &document, nil
 }
 
-// func (r *ProjectsRepository) GetProjectById(projectID uuid.UUID) (*Project, error) {
-// 	ctx := context.Background()
-// 	conn, errA := r.pool.Acquire(ctx)
-// 	if errA != nil {
-// 		return nil, tracerr.Wrap(errA)
-// 	}
-// 	defer conn.Release()
-// 	project, err := r.Queries.GetProjectById(ctx, conn, projectID)
-// 	if err != nil {
-// 		if err.Error() == "no rows in result set" {
-// 			return nil, nil
-// 		} else {
-// 			return nil, err
-// 		}
-// 	}
-// 	return &project, nil
-// }
+func (r *DocumentsRepository) GetDocumentsByProjectId(projectID uuid.UUID) ([]Document, error) {
+	ctx := context.Background()
+	conn, errA := r.pool.Acquire(ctx)
+	if errA != nil {
+		return nil, tracerr.Wrap(errA)
+	}
+	defer conn.Release()
+	documents, err := r.Queries.GetDocumentsByProjectId(ctx, conn, projectID)
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			return []Document{}, nil
+		} else {
+			return nil, err
+		}
+	}
+	return documents, nil
+}

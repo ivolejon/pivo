@@ -20,6 +20,8 @@ services:
       - IS_PERSISTENT=TRUE
       - PERSIST_DIRECTORY=/chroma/chroma # this is the default path, change it as needed
       - ANONYMIZED_TELEMETRY=FALSE
+      - CHROMA_SERVER_LOG_LEVEL=DEBUG
+      - LOG_LEVEL=debug
     ports:
       - 8000:8000
 volumes:

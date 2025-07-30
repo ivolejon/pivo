@@ -25,7 +25,8 @@ func NewUploadService(clientID uuid.UUID, projectID uuid.UUID) (*UploadService, 
 	if err != nil {
 		return nil, tracerr.Wrap(err)
 	}
-	err = knowledgeBaseSvc.Init("ollama:llama3.2")
+	// err = knowledgeBaseSvc.Init("ollama-llama3.2")
+	err = knowledgeBaseSvc.Init("ollama-gemma3:27b")
 	if err != nil {
 		return nil, tracerr.Wrap(err)
 	}

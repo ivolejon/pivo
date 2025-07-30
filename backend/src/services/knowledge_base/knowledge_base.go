@@ -63,13 +63,13 @@ func NewKnowledgeBaseService(clientID uuid.UUID, projectID uuid.UUID) (*Knowledg
 
 func (svc *KnowledgeBaseService) Init(LLMmodelName string) error {
 	// TODO: Break out the selection of the model into a separate function
-	supportedOllamModels := []string{"ollama:llama3.2"}
+	supportedOllamModels := []string{"ollama-llama3.2", "ollama-gemma3:27b"}
 	if !slices.Contains(supportedOllamModels, LLMmodelName) {
 		return errors.New("Model not supported")
 	}
 
 	svc.model = LLMmodelName
-	llm, err := ollama.New(ollama.WithModel(strings.Split(LLMmodelName, ":")[1]))
+	llm, err := ollama.New(ollama.WithModel(strings.Split(LLMmodelName, "-")[1]))
 	if err != nil {
 		return tracerr.Wrap(err)
 	}

@@ -11,6 +11,7 @@ func main() {
 	env := settings.Environment()
 	server := NewHTTPServer()
 	web.SetupProjectRoutes(server)
+	web.SetupDocumentRoutes(server)
 	web.SetupWebsocket(server)
 	if err := server.Run(env.WebServerPort); err != nil {
 		fmt.Println("Error starting server:", err)

@@ -26,7 +26,7 @@ type VectorStore struct {
 }
 
 func NewVectorStore(storeType string, llm llms.Model, collectionId uuid.UUID) (*VectorStore, error) {
-	embedder, errEm := embedders.GetEmbedderLlama2_3Model()
+	embedder, errEm := embedders.GetEmbedderBgeLarge()
 	if errEm != nil {
 		return nil, tracerr.Wrap(errEm)
 	}
@@ -63,8 +63,12 @@ func (v *VectorStore) SimilaritySearch(search string, numOfResults int) ([]schem
 	return v.Provider.SimilaritySearch(search, numOfResults)
 }
 
-func (v *VectorStore) RemoveCollection(id uuid.UUID) bool {
+func (v *VectorStore) RemoveCollection() bool {
 	return v.Provider.RemoveCollection()
+}
+
+func (v *VectorStore) RemoveDocument(documentID string) error {
+	return v.Provider.RemoveDocument(documentID)
 }
 
 func (v *VectorStore) Retriver(numOfDocs int) vectorstores.Retriever {

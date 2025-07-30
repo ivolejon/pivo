@@ -10,6 +10,7 @@ func getBaseDocumentChainSystemPrompt() string {
 		2. **Be Concise:** Provide a clear and concise response to the user query. Avoid unnecessary information or verbosity.**
 		3. **Never refer to the knowledgebase or the LLM in your answer.**
 		4. **Never make stuff up, just output text you are sure about.**
+		5. **If can not find any information in the knowledgebase, use your internal knowledge.**
 
 		**In essence, knowledgebase first, LLM second.**
 		This is the knowledgebase: {{.input_documents}}\n\n

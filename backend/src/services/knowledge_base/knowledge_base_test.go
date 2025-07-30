@@ -20,24 +20,59 @@ func TestKnowledgeBaseServiceNew(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestKnowledgeBaseServiceInit(t *testing.T) {
+func TestKnowledgeBaseServiceInit_ollama_llama3_2(t *testing.T) {
 	client, err := knowledge_base.NewKnowledgeBaseService(clientID, projectID)
 	require.NoError(t, err)
-	err = client.Init("ollama:llama3.2")
+	err = client.Init("ollama-llama3.2")
+	require.NoError(t, err)
+}
+
+func TestKnowledgeBaseServiceInit_ollama_gemma3_27b(t *testing.T) {
+	client, err := knowledge_base.NewKnowledgeBaseService(clientID, projectID)
+	require.NoError(t, err)
+	err = client.Init("ollama-gemma3:27b")
 	require.NoError(t, err)
 }
 
 func TestKnowledgeBaseServiceInitWithFaultModel(t *testing.T) {
 	svc, err := knowledge_base.NewKnowledgeBaseService(clientID, projectID)
 	require.NoError(t, err)
-	err = svc.Init("ollama:llama3.3")
+	err = svc.Init("ollama-llama3.3")
 	require.Equal(t, "Model not supported", err.Error())
 }
 
-func TestKnowledgeBaseServiceAddDocument(t *testing.T) {
+func TestKnowledgeBaseServiceAddDocument_gemma3_27b(t *testing.T) {
+	clientID := uuid.New()
+	projectID := uuid.New()
+	// Initialize the KnowledgeBaseService with a new clientID and projectID
+
 	svc, errSvc := knowledge_base.NewKnowledgeBaseService(clientID, projectID)
 	require.NoError(t, errSvc)
-	_ = svc.Init("ollama:llama3.2")
+	_ = svc.Init("ollama-gemma3:27b")
+
+	filename := "ivo.txt"
+	projectId := uuid.New()
+
+	params := knowledge_base.AddDocumentParams{
+		Documents: []schema.Document{
+			{
+				PageContent: "The color of the house on the hill is blue.",
+				Metadata:    map[string]any{"filename": filename},
+			},
+		},
+		Filename:  filename,
+		ProjectID: projectId,
+		Title:     "New doc hello",
+	}
+
+	_, err := svc.AddDocuments(params)
+	require.NoError(t, err)
+}
+
+func TestKnowledgeBaseServiceAddDocument_llama3_2(t *testing.T) {
+	svc, errSvc := knowledge_base.NewKnowledgeBaseService(clientID, projectID)
+	require.NoError(t, errSvc)
+	_ = svc.Init("ollama-llama3.2")
 
 	filename := "ivo.txt"
 	projectId := uuid.New()
@@ -68,7 +103,7 @@ func TestKnowledgeBaseServiceAddDocumentNoInit(t *testing.T) {
 func TestKnowledgeBaseServiceQuery(t *testing.T) {
 	svc, err := knowledge_base.NewKnowledgeBaseService(clientID, projectID)
 	require.NoError(t, err)
-	err = svc.Init("ollama:llama3.2")
+	err = svc.Init("ollama-gemma3:27b")
 	require.NoError(t, err)
 
 	docs := []schema.Document{
@@ -86,11 +121,9 @@ func TestKnowledgeBaseServiceQuery(t *testing.T) {
 
 	_, err = svc.AddDocuments(params)
 	require.NoError(t, err)
-	res, err := svc.Query("Who is Donald Trump? And what color is the buss?")
+	res, err := svc.Query("What is a lion? And what color is the buss?")
 	require.NoError(t, err)
 
-	// require.Contains(t, strings.ToLower(*res), "#") // Test for markdown notation
-	require.Contains(t, strings.ToLower(*res), "donald")
-	require.Contains(t, strings.ToLower(*res), "trump")
+	require.Contains(t, strings.ToLower(*res), "cat")
 	require.Contains(t, strings.ToLower(*res), "yellow")
 }

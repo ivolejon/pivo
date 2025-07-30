@@ -20,10 +20,10 @@ type Document struct {
 }
 
 type Project struct {
-	ID        uuid.UUID
-	ClientID  uuid.UUID
-	Title     *string
-	CreatedAt time.Time
+	ID        uuid.UUID `json:"id"`
+	ClientID  uuid.UUID `json:"client_id"`
+	Title     *string   `json:"title"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type SchemaMigration struct {

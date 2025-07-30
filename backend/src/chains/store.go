@@ -23,7 +23,7 @@ func (s *ChainStore) GetBaseDocumentChain(llm llms.Model) chains.Chain {
 		[]string{"input_documents", "question"},
 	)
 	combineChain := chains.NewStuffDocuments(chains.NewLLMChain(llm, prompt))
-	retriever := s.vectorStore.Retriver(2)
+	retriever := s.vectorStore.Retriver(500)
 	chain := chains.NewRetrievalQA(combineChain, retriever)
 
 	return chain

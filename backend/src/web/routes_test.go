@@ -73,6 +73,7 @@ func TestAddFileToKnowledgeBase(t *testing.T) {
 
 	router := gin.Default()
 	web.SetupProjectRoutes(router)
+	web.SetupDocumentRoutes(router)
 
 	filepath := "./test_data/pdf_file.pdf"
 
@@ -85,7 +86,7 @@ func TestAddFileToKnowledgeBase(t *testing.T) {
 
 	body, contentType := prepareForm(data)
 
-	req, err := http.NewRequest("POST", "/project/add-document", body)
+	req, err := http.NewRequest("POST", "/document/add-document", body)
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", contentType)
 
@@ -114,7 +115,7 @@ func TestAddNonSupportedFileToKnowledgeBase(t *testing.T) {
 
 	body, contentType := prepareForm(data)
 
-	req, err := http.NewRequest("POST", "/project/add-document", body)
+	req, err := http.NewRequest("POST", "/document/add-document", body)
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", contentType)
 

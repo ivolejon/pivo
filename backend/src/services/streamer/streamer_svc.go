@@ -118,7 +118,7 @@ func (h *Hub) PublishToClient(clientID string, message []byte) bool {
 		}
 	}
 	if !found {
-		log.Printf("Client with ID %s not found.", clientID)
+		log.Printf("Client with ID %s not found!!", clientID)
 	}
 	return found
 }

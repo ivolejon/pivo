@@ -5,6 +5,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 )
 
@@ -12,12 +13,14 @@ type (
 	webServerPort     = string
 	databaseUrl       = string
 	ChromaDatabaseUrl = string
+	ClientID          = string
 )
 
 type EnvironmentSettings struct {
 	WebServerPort webServerPort
 	DatabaseUrl   databaseUrl
 	ChromaUrl     ChromaDatabaseUrl
+	ClientID      uuid.UUID
 }
 
 var (
@@ -49,6 +52,18 @@ func getDbUrl() databaseUrl {
 	return dbUrl
 }
 
+func getClientID() uuid.UUID {
+	clientID := os.Getenv("CLIENT_ID")
+	if clientID == "" {
+		panic("CLIENT_ID is missing")
+	}
+	if parsedID, err := uuid.Parse(clientID); err != nil {
+		panic(fmt.Sprintf("CLIENT_ID is not a valid UUID: %s", clientID))
+	} else {
+		return parsedID
+	}
+}
+
 func Environment() *EnvironmentSettings {
 	once.Do(func() {
 		_ = godotenv.Load(".env.development") // Load environment variables from .env file
@@ -57,6 +72,7 @@ func Environment() *EnvironmentSettings {
 			DatabaseUrl:   getDbUrl(),
 			ChromaUrl:     getChromaDbUrl(),
 			WebServerPort: fmt.Sprintf(":%s", getWebServerPort()),
+			ClientID:      getClientID(),
 		}
 	})
 	return instance

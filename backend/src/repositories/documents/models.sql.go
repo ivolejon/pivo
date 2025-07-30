@@ -11,12 +11,13 @@ import (
 )
 
 type Document struct {
-	ID            uuid.UUID
-	EmbeddingsIds []uuid.UUID
-	Filename      string
-	Title         *string
-	ProjectID     uuid.UUID
-	CreatedAt     time.Time
+	ID            uuid.UUID   `json:"id"`
+	ClientID      uuid.UUID   `json:"clientId"`
+	EmbeddingsIds []uuid.UUID `json:"embeddingsIds"`
+	Filename      string      `json:"filename"`
+	Title         *string     `json:"title"`
+	ProjectID     uuid.UUID   `json:"projectId"`
+	CreatedAt     time.Time   `json:"createdAt"`
 }
 
 type Project struct {
